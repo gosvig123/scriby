@@ -9,6 +9,7 @@ export const config = {
   },
 };
 
+import { prisma } from '../../../prisma/db';
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
@@ -23,15 +24,13 @@ const supabase = createClient(supabaseUrl, supabaseKey, {
 
 export default async (req: any, res: any) => {
   const rawCookie = req.headers.cookie;
-
-  console.log('raw cookie,', rawCookie);
   const userDetails = decodeCookie(rawCookie);
 
   if (!userDetails) {
     return res.status(401).json({ error: 'Unauthorized' });
   }
-  const { email } = userDetails;
-
+  const { email, id } = userDetails;
+  console.log(email, id);
   if (req.method !== 'POST') {
     return res.status(405).end();
   }
@@ -48,23 +47,7 @@ export default async (req: any, res: any) => {
       return res.status(400).json({ error: 'No file uploaded' });
     }
 
-    // 1. Upload the file to Supabase storage
-    const filePath = `${email}/${req.file.originalname}`;
-    const { error: uploadError } = await supabase.storage
-      .from('scriby')
-      .upload(filePath, req.file.buffer);
-
-    if (uploadError) {
-      console.error(
-        'Error uploading to Supabase:',
-        uploadError.message
-      );
-      return res
-        .status(500)
-        .json({ error: 'Error uploading to Supabase' });
-    }
-
-    // 2. Continue with transcription as before
+    // Transcription process
     const key = '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';
     const model = 'whisper-1';
     const formData = new FormData();
@@ -85,9 +68,51 @@ export default async (req: any, res: any) => {
         }
       );
 
-      res.status(200).json(response.data);
+      // Check if the response contains 'text'
+      const transcription = response.data.text;
+      if (!transcription) {
+        console.error(
+          'No transcription found in the response:',
+          response.data
+        );
+        return res
+          .status(500)
+          .json({ error: 'No transcription received' });
+      }
+
+      // Convert the transcribed text to a Buffer
+      const transcriptionBuffer = Buffer.from(transcription, 'utf-8');
+
+      // Define the path for the .txt file in Supabase storage
+      const txtFilePath = `${email}/${req.file.originalname}.txt`;
+
+      // Upload the .txt file to Supabase storage
+      const { error: txtUploadError } = await supabase.storage
+        .from('scriby')
+        .upload(txtFilePath, transcriptionBuffer);
+
+      if (txtUploadError) {
+        console.error(
+          'Error uploading transcription to Supabase:',
+          txtUploadError.message
+        );
+        return res.status(500).json({
+          error: 'Error uploading transcription to Supabase',
+        });
+      }
+
+      const newTranscription = await prisma.transcription.create({
+        data: {
+          name: req.file.originalname,
+          userId: id,
+        },
+      });
+
+      // Send a successful response
+      res.status(200).json(newTranscription);
     } catch (error) {
       console.error('Error:', error);
+      res.status(500).json({ error: 'Error transcribing the audio' });
     }
   });
 };

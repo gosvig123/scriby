@@ -15,26 +15,26 @@ model User {
   authMethods   AuthMethod[]
   authlink      AuthLink?
   sessionId     String?
+  transcriptions Transcription[]
+
 }
 
-// This is a table to store authentication methods associated with a user.
 model AuthMethod {
   id        Int      @id @unique @default(autoincrement())
   userId    Int
   user      User     @relation(fields: [userId], references: [id])
-  type      AuthType @map(name: "auth_type") // Google, Email, etc.
-  password  String?  // If the type is Email, this is where the hashed password would be stored.
-  uniqueId  String?  // If the type is Google, this could store Google's unique user id.
+  type      AuthType @map(name: "auth_type")
+  password  String?
+  uniqueId  String?
   verified  Boolean  @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt()
 }
 
-// Using an Enum to represent different types of authentication methods.
 enum AuthType {
   GOOGLE
   EMAIL
-  OTHER // You can add more types in the future
+  OTHER
 }
 
 model AuthLink {
@@ -43,4 +43,13 @@ model AuthLink {
   user       User?     @relation(fields: [userId], references: [id])
   createdAt  DateTime  @default(now())
   updatedAt  DateTime  @updatedAt()
+}
+
+model Transcription {
+  id          String    @id @default(uuid())
+  name        String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt()
+  userId      Int
+  user        User      @relation(fields: [userId], references: [id])  //
 }

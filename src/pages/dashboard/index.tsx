@@ -4,23 +4,31 @@ import UploadFile from '@/components/UploadFile';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import DashboardSubHeader from '@/components/DashboardSubHeader';
+import TranscriptionList from '@/components/TranscriptionList';
 export default function Dashboard() {
   const router = useRouter();
   const fullUrl = router.asPath;
   const [showModal, setShowModal] = useState(false);
   const [activeTab, setActiveTab] = useState('Upload');
 
+  const dummyTranscriptions: any[] = [
+    { name: 'File1.mp3', date: '20th Aug 2023' },
+    { name: 'MeetingNotes.mp3', date: '18th Aug 2023' },
+    // Add more dummy data or fetch real data later
+  ];
+
   const tabs = [
     { name: 'Upload', component: <UploadFile /> },
     {
       name: 'Transcriptions',
-      component: <div>Example component for transcriptions</div>,
+      component: (
+        <TranscriptionList transcriptions={dummyTranscriptions} />
+      ),
     },
-
-    {
-      name: 'Settings',
-      component: <div>Example component for settings</div>,
-    },
+    // {
+    //   name: 'Settings',
+    //   component: <div>Example component for settings</div>,
+    // },
   ];
 
   useEffect(() => {

@@ -44,7 +44,11 @@ export default function Header() {
         {isAuthenticated ? (
           <div className='flex items-center gap-5'>
             <span>{userEmail}</span>
-            <AvatarIcon />
+            {
+              <Link href='/settings'>
+                <AvatarIcon />
+              </Link>
+            }
           </div>
         ) : (
           <div className='flex space-x-4 items-center gap-10'>
