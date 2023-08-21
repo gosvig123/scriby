@@ -13,9 +13,12 @@ const TranscriptionsList = ({
   transcriptions,
 }: TranscriptionListProps) => {
   const [selectedFormat, setSelectedFormat] = useState('txt');
+
+
   const [checkedTranscriptions, setCheckedTranscriptions] = useState<
     string[]
   >([]); // Using array of names as an identifier
+  
 
   const handleCheckboxChange = (
     itemName: string,

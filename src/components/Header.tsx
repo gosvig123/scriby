@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import LoginModal from './auth/LoginModal';
+import { useRouter } from 'next/router';
 
 const AvatarIcon = () => (
   <svg
@@ -27,6 +28,9 @@ const AvatarIcon = () => (
 );
 
 export default function Header() {
+  const router = useRouter();
+  const fullUrl = router.asPath;
+
   const [isAuthenticated, setIsAuthenticated] = useState(true);
   const [userEmail, setUserEmail] = useState('test123');
   return (
@@ -41,6 +45,13 @@ export default function Header() {
             <h1>Logo</h1>
           </Link>
         </div>
+        {!fullUrl.includes('dashboard') && (
+          <Link href={'/dashboard'}>
+            <button className='solidPurpleButton'>
+              Go to My Dashboard
+            </button>
+          </Link>
+        )}
         {isAuthenticated ? (
           <div className='flex items-center gap-5'>
             <span>{userEmail}</span>

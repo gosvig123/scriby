@@ -17,12 +17,37 @@ export default function Dashboard() {
     // Add more dummy data or fetch real data later
   ];
 
+  const [transcriptions, setTranscriptions] = useState<any[]>([]);
+
+  useEffect(() => {
+    const fetchTranscriptions = async () => {
+      // Assuming the user ID is 1, replace this with actual user ID or authentication mechanism.
+      const response = await fetch('/api/getmytranscriptions', {
+        credentials: 'include',
+      });
+      if (response.ok) {
+        const data: any[] = await response.json();
+        console.log(data);
+        const formattedData = data.map((item) => ({
+          name: item.name,
+          date: new Date(item.createdAt).toLocaleDateString(), // Format date as required
+        }));
+        setTranscriptions(formattedData);
+      } else {
+        // Handle the error case
+        console.error('Failed to fetch transcriptions');
+      }
+    };
+
+    fetchTranscriptions();
+  }, []);
+
   const tabs = [
     { name: 'Upload', component: <UploadFile /> },
     {
       name: 'Transcriptions',
       component: (
-        <TranscriptionList transcriptions={dummyTranscriptions} />
+        <TranscriptionList transcriptions={transcriptions} />
       ),
     },
     // {
