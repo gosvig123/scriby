@@ -1,10 +1,10 @@
 import jwt from 'jsonwebtoken';
 
 interface DecodedPayload {
-  userId: number; // <-- Change this from 'id' to 'userId'
+  userId: number;
   email: string;
-  iat?: number; // Issued at
-  exp?: number; // Expires at
+  iat?: number; 
+  exp?: number;
 }
 
 export function decodeCookie(
