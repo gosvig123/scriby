@@ -1,8 +1,10 @@
 'use client';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import LoginModal from './auth/LoginModal';
 import { useRouter } from 'next/router';
+import { decodeCookie } from '../../lib/jwt/decodeToken';
+import Cookies from 'js-cookie';
 
 const AvatarIcon = () => (
   <svg
@@ -27,12 +29,46 @@ const AvatarIcon = () => (
   </svg>
 );
 
-export default function Header() {
-  const router = useRouter();
-  const fullUrl = router.asPath;
+interface IUser {
+  email: string;
+  userId: number;
+  iat: number;
+}
 
-  const [isAuthenticated, setIsAuthenticated] = useState(true);
-  const [userEmail, setUserEmail] = useState('test123');
+interface headerProps {
+  user: IUser | undefined;
+}
+export default function Header({ user }: headerProps) {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [userEmail, setUserEmail] = useState('');
+
+  function handleLogout() {
+    try {
+      fetch('/api/auth/logout', {
+        method: 'POST',
+        credentials: 'include',
+      }).then(() => {
+        const authToken = Cookies.get('token');
+        if (!authToken) {
+          setIsAuthenticated(false);
+          return window.location.assign('/');
+        } else {
+          console.error("Cookie wasn't cleared");
+        }
+      });
+    } catch (error) {
+      console.error(error);
+    }
+  }
+  useEffect(() => {
+    console.log(user);
+    if (user) {
+      console.log(user);
+      setUserEmail(user.email);
+      setIsAuthenticated(true);
+    }
+  }, []); // The empty depend
   return (
     <div
       className={`flex flex-col overflow-hidden items-center justify-between p-5 ${
@@ -45,21 +81,25 @@ export default function Header() {
             <h1>Logo</h1>
           </Link>
         </div>
-        {!fullUrl.includes('dashboard') && (
-          <Link href={'/dashboard'}>
-            <button className='solidPurpleButton'>
-              Go to My Dashboard
-            </button>
-          </Link>
-        )}
         {isAuthenticated ? (
           <div className='flex items-center gap-5'>
-            <span>{userEmail}</span>
-            {
+            {userEmail}
+            <div
+              onMouseEnter={() => setShowLogoutModal(true)}
+              onMouseLeave={() => setShowLogoutModal(false)}
+            >
               <Link href='/settings'>
                 <AvatarIcon />
               </Link>
-            }
+              {showLogoutModal && (
+                <button
+                  onClick={handleLogout}
+                  className='absolute top-0 right-0 bg-red-500 text-white px-2 py-1'
+                >
+                  Logout
+                </button>
+              )}
+            </div>
           </div>
         ) : (
           <div className='flex space-x-4 items-center gap-10'>

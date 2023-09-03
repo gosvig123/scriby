@@ -5,17 +5,21 @@ import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import DashboardSubHeader from '@/components/DashboardSubHeader';
 import TranscriptionList from '@/components/TranscriptionList';
-export default function Dashboard() {
+
+interface IUser {
+  email: string;
+  userId: number;
+  iat: number;
+}
+
+interface dashboardProps {
+  user: IUser;
+}
+export default function Dashboard({user}:dashboardProps)  {
   const router = useRouter();
   const fullUrl = router.asPath;
   const [showModal, setShowModal] = useState(false);
   const [activeTab, setActiveTab] = useState('Upload');
-
-  const dummyTranscriptions: any[] = [
-    { name: 'File1.mp3', date: '20th Aug 2023' },
-    { name: 'MeetingNotes.mp3', date: '18th Aug 2023' },
-    // Add more dummy data or fetch real data later
-  ];
 
   const [transcriptions, setTranscriptions] = useState<any[]>([]);
 
@@ -37,6 +41,7 @@ export default function Dashboard() {
         // Handle the error case
         console.error('Failed to fetch transcriptions');
       }
+      console.log('props', user);
     };
 
     fetchTranscriptions();
@@ -73,7 +78,7 @@ export default function Dashboard() {
 
   return (
     <div className='w-full h-full min-h-screen'>
-      <Header />
+      <Header user={user} />
       <DashboardSubHeader />
       <div className='tabs w-full flex mt-4 ml-5'>
         {tabs.map((tab) => (
@@ -102,3 +107,53 @@ export default function Dashboard() {
     </div>
   );
 }
+
+import { GetServerSideProps } from 'next';
+import jwt from 'jsonwebtoken';
+import decrypt from '../../../lib/jwt/cryptography/decryption'; // Your decryption method here
+import { ENCRYPTION_KEY } from '../../../constants';
+import { parseCookies } from 'nookies';
+
+export const getServerSideProps: GetServerSideProps = async (
+  context
+) => {
+  try {
+    const cookies = parseCookies(context);
+    const encryptedToken = cookies.token;
+
+    if (!encryptedToken) {
+      return {
+        redirect: {
+          destination: '/login', // Redirect to login page if token is not found
+          permanent: false,
+        },
+      };
+    }
+
+    const decryptedToken = decrypt(
+      encryptedToken,
+      Buffer.from(await ENCRYPTION_KEY)
+    );
+
+    const SECRET = process.env.JWT_SECRET;
+
+    if (!SECRET) {
+      throw new Error('No JWT secret found');
+    }
+
+    const decoded = jwt.verify(decryptedToken, SECRET);
+
+    return {
+      props: { user: decoded }, // The decoded user data
+    };
+  } catch (error) {
+    console.error('Error in getServerSideProps:', error);
+
+    return {
+      redirect: {
+        destination: '/login', // Redirect to login page if an error occurs
+        permanent: false,
+      },
+    };
+  }
+};

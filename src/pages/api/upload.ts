@@ -2,7 +2,10 @@ import axios from 'axios';
 import FormData from 'form-data';
 import multer from 'multer';
 import { createClient } from '@supabase/supabase-js';
-import { decodeCookie } from '../../../lib/jwt/decodeToken';
+import { parseCookies } from 'nookies';
+import jwt from 'jsonwebtoken';
+import { ENCRYPTION_KEY } from '../../../constants';
+import decrypt from '../../../lib/jwt/cryptography/decryption';
 export const config = {
   api: {
     bodyParser: false,
@@ -23,14 +26,35 @@ const supabase = createClient(supabaseUrl, supabaseKey, {
 });
 
 export default async (req: any, res: any) => {
-  const rawCookie = req.headers.cookie;
-  const userDetails = decodeCookie(rawCookie);
+  const cookies = parseCookies({ req });
+  const encryptedToken = cookies.token;
 
+  if (!encryptedToken) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+
+  const decryptedToken = decrypt(
+    encryptedToken,
+    Buffer.from(await ENCRYPTION_KEY)
+  );
+
+  const SECRET = process.env.JWT_SECRET;
+
+  if (!SECRET) {
+    throw new Error('No JWT secret found');
+  }
+
+  const userDetails = jwt.verify(decryptedToken, SECRET) as {
+    email: string;
+    userId: number;
+  };
+
+  console.log(userDetails);
   if (!userDetails) {
     return res.status(401).json({ error: 'Unauthorized' });
   }
-  const { email, id } = userDetails;
-  console.log(email, id);
+  const { email } = userDetails;
+  const id = userDetails.userId;
   if (req.method !== 'POST') {
     return res.status(405).end();
   }

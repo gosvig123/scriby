@@ -23,6 +23,17 @@ async function getJWTSecret() {
   return JWT_SECRET;
 }
 
+async function getEncryptionKey() {
+  const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY;
+
+  if (!ENCRYPTION_KEY) {
+    throw new Error('ENCRYPTION_KEY must be set');
+  }
+
+  return ENCRYPTION_KEY;
+}
+
+const ENCRYPTION_KEY = getEncryptionKey();
 const JWT_SECRET = getJWTSecret();
 
 async function getGoogleClientId() {
@@ -37,4 +48,4 @@ async function getGoogleClientId() {
 
 const GOOGLE_CLIENT_ID = getGoogleClientId();
 
-export { DATABASE_URL, JWT_SECRET, GOOGLE_CLIENT_ID };
+export { DATABASE_URL, JWT_SECRET, GOOGLE_CLIENT_ID, ENCRYPTION_KEY };

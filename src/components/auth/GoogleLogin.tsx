@@ -1,14 +1,37 @@
+import { useEffect } from 'react';
 import { GoogleLogin as GoogleLoginButton } from 'react-google-login';
-
+let gapi: any;
 const clientId =
   '358155175620-tmo0ped23qte9gpnv4dovqr1i6tj11r6.apps.googleusercontent.com';
 
-function GoogleLogin() {
-  const onSuccess = async (response: any) => {
+
+function GoogleLogin({ onSuccess }: any) {
+  const handleSuccess = async (response: any) => {
     try {
       const userObj = response.profileObj;
+      onSuccess(userObj.googleId); // pass googleId to parent's handleGoogleLogin
 
-      const signupResponse = await fetch('/api/signup', {
+
+      // Try to login
+      const loginResponse = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: userObj.email,
+          googleId: userObj.googleId,
+        }),
+      });
+
+      if (loginResponse.ok) {
+        // If login is successful, redirect to dashboard
+        window.location.href = '/dashboard';
+        return;
+      }
+
+      // If login failed, attempt to sign up
+      const signupResponse = await fetch('/api/auth/signup', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -22,14 +45,33 @@ function GoogleLogin() {
       const data = await signupResponse.json();
 
       if (signupResponse.ok) {
-        // Handle successful signup logic here (e.g., redirect to dashboard, set user in state, etc.)
+        // If sign-up is successful, redirect to dashboard
+        window.location.href = '/dashboard';
       } else {
         console.error(data.error);
       }
     } catch (error) {
-      console.error('Error signing up:', error);
+      console.error('Error:', error);
     }
   };
+
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      import('gapi-script').then((module) => {
+        gapi = module.gapi;
+        gapi.load('client:auth2', () => {
+          gapi.client.init({
+            clientId: clientId,
+            scope: '',
+          });
+        });
+      });
+    }
+  }, []);
+
+
+
 
   const onFailure = (response: any) => {
     console.log(response);
@@ -39,7 +81,7 @@ function GoogleLogin() {
       <GoogleLoginButton
         className='w-full h-10  mb-5  rounded-lg shadow-lg GoogleButton border-2 border-black'
         clientId={clientId}
-        onSuccess={onSuccess}
+        onSuccess={handleSuccess}
         onFailure={onFailure}
         cookiePolicy={'single_host_origin'}
         isSignedIn={true}

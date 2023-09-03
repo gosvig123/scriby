@@ -1,18 +1,20 @@
 import jwt from 'jsonwebtoken';
-
+import { config } from 'dotenv';
 interface DecodedPayload {
   userId: number;
   email: string;
-  iat?: number; 
+  iat?: number;
   exp?: number;
 }
 
+config();
 export function decodeCookie(
   rawCookie: string | undefined
 ): { id: number; email: string } | null {
   if (!rawCookie) {
     return null;
   }
+  console.log(rawCookie);
 
   const tokenName = 'token=';
   const start = rawCookie.indexOf(tokenName);

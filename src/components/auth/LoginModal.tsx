@@ -1,12 +1,80 @@
 'use client';
 import { FormEvent, useEffect, useState } from 'react';
-import GoogleLogin from './GoogleLogin';
 
+import dynamic from 'next/dynamic';
+const GoogleLogin = dynamic(() => import('./GoogleLogin'), {
+  ssr: false,
+});
+const clientId =
+  '358155175620-tmo0ped23qte9gpnv4dovqr1i6tj11r6.apps.googleusercontent.com';
 
 export default function () {
   const [password, setPassword] = useState('');
   const [email, setEmail] = useState('');
   const [isOpen, setIsOpen] = useState(false);
+
+  const handleLogin = async (e: FormEvent) => {
+    e.preventDefault();
+    try {
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log('Logged in:', data);
+        setIsOpen(false);
+      } else {
+        const data = await response.json();
+        console.error('Login error:', data.error);
+        // handle login failure here
+      }
+    } catch (error) {
+      console.error('An error occurred:', error);
+      // handle fetch error here
+    }
+  };
+  const handleGoogleLogin = async (googleId: string) => {
+    login({ googleId });
+  };
+
+  const login = async ({
+    email,
+    password,
+    googleId,
+  }: {
+    email?: string;
+    password?: string;
+    googleId?: string;
+  }) => {
+    try {
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password, googleId }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log('Logged in:', data);
+        setIsOpen(false);
+        // handle login success here
+      } else {
+        const data = await response.json();
+        console.error('Login error:', data.error);
+        // handle login failure here
+      }
+    } catch (error) {
+      console.error('An error occurred:', error);
+      // handle fetch error here
+    }
+  };
 
   return (
     <div className=' justify-center items-center p-2 transparentPurpleButton'>
@@ -36,9 +104,12 @@ export default function () {
                 account.
               </p>
             </div>
-            <GoogleLogin />
+            <GoogleLogin onSuccess={handleGoogleLogin} />
             <div className='w-full flex flex-col '>
-              <form className='flex flex-col gap-5 text-left'>
+              <form
+                className='flex flex-col gap-5 text-left'
+                onSubmit={handleLogin}
+              >
                 <label>
                   Email
                   <input

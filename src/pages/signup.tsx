@@ -13,7 +13,6 @@ import Notification from '@/components/Alert';
 import { AuthLink } from '@prisma/client';
 
 let gapi: any;
-
 const clientId =
   '358155175620-tmo0ped23qte9gpnv4dovqr1i6tj11r6.apps.googleusercontent.com';
 
@@ -64,7 +63,7 @@ function Signup() {
       return;
     }
 
-    const response = await fetch('/api/signup', {
+    const response = await fetch('/api/auth/signup', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

@@ -6,9 +6,7 @@ import React, {
   useCallback,
   useState,
 } from 'react';
-import uploadFile from '../../../scriby/app/serverActions/superbase/uploadFile';
-// import { uploadChunksToSupabase } from '../serverActions/superbase/uploadFile';
-// gray cloud upload SVG icon
+
 const cloudUploadIcon =
   'https://raw.githubusercontent.com/FortAwesome/Font-Awesome/master/svgs/solid/cloud-upload-alt.svg';
 
@@ -43,9 +41,6 @@ const FileUploadComponent = () => {
     }
   };
 
-  // You can call this function when the "Transcribe" button is clicked
-
-  // You can call this function when the "Transcribe" button is clicked
 
   return (
     <div className='bg-white w-5/6 flex p-5 flex-col m-auto gap-3 rounded-lg items-center mt-5 justify-center'>
