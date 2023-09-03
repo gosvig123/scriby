@@ -5,7 +5,12 @@ import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import DashboardSubHeader from '@/components/DashboardSubHeader';
 import TranscriptionList from '@/components/TranscriptionList';
-
+// import CheckoutForm from '@/components/CheckoutForm';
+// import { loadStripe } from '@stripe/stripe-js';
+// const stripePromise = loadStripe(
+//   'pk_live_51NmCIqCGmGe8KoMAmfsD3xky4bmbkYTy9p8dpepU4YvfW3fzobvHL1RRsu3qECe7pdDckMJiQngyCvy1rQ56m5oG00gkTKstMu'
+// );
+// import { Elements } from '@stripe/react-stripe-js';
 interface IUser {
   email: string;
   userId: number;
@@ -15,7 +20,7 @@ interface IUser {
 interface dashboardProps {
   user: IUser;
 }
-export default function Dashboard({user}:dashboardProps)  {
+export default function Dashboard({ user }: dashboardProps) {
   const router = useRouter();
   const fullUrl = router.asPath;
   const [showModal, setShowModal] = useState(false);
@@ -60,6 +65,8 @@ export default function Dashboard({user}:dashboardProps)  {
     //   component: <div>Example component for settings</div>,
     // },
   ];
+
+  const price = 40;
 
   useEffect(() => {
     fullUrl.includes('firstlogin')
@@ -107,6 +114,9 @@ export default function Dashboard({user}:dashboardProps)  {
     </div>
   );
 }
+      // <Elements stripe={stripePromise}>
+      //   <CheckoutForm price={price} />
+      // </Elements>{' '}
 
 import { GetServerSideProps } from 'next';
 import jwt from 'jsonwebtoken';
@@ -124,7 +134,7 @@ export const getServerSideProps: GetServerSideProps = async (
     if (!encryptedToken) {
       return {
         redirect: {
-          destination: '/login', // Redirect to login page if token is not found
+          destination: '/signup', // Redirect to login page if token is not found
           permanent: false,
         },
       };

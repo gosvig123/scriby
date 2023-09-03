@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   CardNumberElement,
   CardExpiryElement,
@@ -9,67 +9,58 @@ import {
 
 interface Props {
   price: number;
-  clientSecret: string;
 }
 
-export default function CheckoutForm({ price, clientSecret }: Props) {
+const clientSecret =
+  'sk_test_51MWlLsGBL31qIrQExIrjz7aRXJWxfirJB6ABrOzfsccq55HZ3SNYIlDYP66Jv0pLk7WXq1eJkqaKFUlf0VoRnd0600sG0s3rKS';
+export default function CheckoutForm({ price }: Props) {
   const stripe = useStripe();
   const elements = useElements();
+  const [message, setMessage] = useState<string>('');
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [clientSecret, setClientSecret] = useState<string | null>(
+    null
+  );
 
-  const [message, setMessage] = React.useState('');
-  const [isLoading, setIsLoading] = React.useState(false);
-
-  React.useEffect(() => {
-    if (!stripe) {
-      return;
-    }
-
-    const clientSecret = new URLSearchParams(
-      window.location.search
-    ).get('payment_intent_client_secret');
-
-    if (!clientSecret) {
-      return;
-    }
-
-    stripe
-      .retrievePaymentIntent(clientSecret)
-      .then(({ paymentIntent }) => {
-        if (paymentIntent && paymentIntent.status) {
-          switch (paymentIntent.status) {
-            case 'succeeded':
-              setMessage('Payment succeeded!');
-              break;
-            case 'processing':
-              setMessage('Your payment is processing.');
-              break;
-            case 'requires_payment_method':
-              setMessage(
-                'Your payment was not successful, please try again.'
-              );
-              break;
-            default:
-              setMessage('Something went wrong.');
-              break;
-          }
-        }
+  useEffect(() => {
+    // Fetch the client secret from the server
+    async function fetchClientSecret() {
+      const response = await fetch('/createpayment', {
+        // Change the endpoint to your server API
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ price }),
       });
-  }, [stripe]);
 
-  const handleSubmit = async (e: any) => {
+      const data = await response.json();
+      setClientSecret(data.clientSecret);
+    }
+
+    fetchClientSecret();
+  }, [price]);
+
+  const handleSubmit = async (
+    e: React.FormEvent<HTMLFormElement>
+  ) => {
     e.preventDefault();
-    if (!stripe || !elements) {
-      // Stripe.js hasn't yet loaded.
-      // Make sure to disable form submission until Stripe.js has loaded.
+
+    if (!stripe || !elements || !clientSecret) {
+      setMessage('Payment cannot be processed at this time.');
       return;
     }
 
     setIsLoading(true);
+
     const cardElement = elements.getElement(CardNumberElement);
 
-    if (cardElement === null) {
+    if (!cardElement) {
+      setMessage('Payment cannot be processed at this time.');
+      setIsLoading(false);
       return;
     }
+
     const { error, paymentIntent } = await stripe.confirmCardPayment(
       clientSecret,
       {
@@ -80,12 +71,8 @@ export default function CheckoutForm({ price, clientSecret }: Props) {
     );
 
     if (error) {
-      if (error.message) {
-        setMessage(error.message);
-      } else {
-        setMessage('An unexpected error occurred.');
-      }
-    } else if (paymentIntent.status === 'succeeded') {
+      setMessage(error.message || 'An unexpected error occurred.');
+    } else if (paymentIntent?.status === 'succeeded') {
       setMessage('Payment succeeded!');
     } else {
       setMessage('Payment failed, please try again.');
@@ -93,6 +80,7 @@ export default function CheckoutForm({ price, clientSecret }: Props) {
 
     setIsLoading(false);
   };
+
   return (
     <form
       onSubmit={handleSubmit}
