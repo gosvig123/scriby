@@ -1,14 +1,12 @@
 'use client';
-import { FormEvent, useEffect, useState } from 'react';
+import { FormEvent, useState } from 'react';
 
 import dynamic from 'next/dynamic';
 const GoogleLogin = dynamic(() => import('./GoogleLogin'), {
   ssr: false,
 });
-const clientId =
-  '358155175620-tmo0ped23qte9gpnv4dovqr1i6tj11r6.apps.googleusercontent.com';
 
-export default function () {
+export default function LoginModal() {
   const [password, setPassword] = useState('');
   const [email, setEmail] = useState('');
   const [isOpen, setIsOpen] = useState(false);
