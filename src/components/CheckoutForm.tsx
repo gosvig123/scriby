@@ -24,8 +24,9 @@ export default function CheckoutForm({ price }: Props) {
 
   useEffect(() => {
     // Fetch the client secret from the server
+    
     async function fetchClientSecret() {
-      const response = await fetch('/createpayment', {
+      const response = await fetch('/api/createpayment', {
         // Change the endpoint to your server API
         method: 'POST',
         headers: {
@@ -35,6 +36,7 @@ export default function CheckoutForm({ price }: Props) {
       });
 
       const data = await response.json();
+
       setClientSecret(data.clientSecret);
     }
 

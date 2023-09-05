@@ -84,7 +84,7 @@ export default function Dashboard({ user }: dashboardProps) {
     defaultComponent;
 
   return (
-    <div className='w-full h-full min-h-screen'>
+    <div className='w-full h-full min-h-screen overflow-hidden'>
       <Header user={user} />
       <DashboardSubHeader />
       <div className='tabs w-full flex mt-4 ml-5'>
