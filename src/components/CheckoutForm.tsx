@@ -24,7 +24,7 @@ export default function CheckoutForm({ price }: Props) {
 
   useEffect(() => {
     // Fetch the client secret from the server
-    
+
     async function fetchClientSecret() {
       const response = await fetch('/api/createpayment', {
         // Change the endpoint to your server API
@@ -171,7 +171,7 @@ export default function CheckoutForm({ price }: Props) {
             ></path>
           </svg>
         ) : (
-          `Pay $${price}`
+          `Pay $${price / 100}`
         )}
       </button>
       {message && <div className='text-red-500 pt-2'>{message}</div>}

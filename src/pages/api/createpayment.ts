@@ -26,7 +26,7 @@ export default async function handler(
   // Store the secret key in an environment variable or use a secrets manager
   const secretKey =
     process.env.STRIPE_SECRET_KEY ||
-    'sk_test_51MWlLsGBL31qIrQExIrjz7aRXJWxfirJB6ABrOzfsccq55HZ3SNYIlDYP66Jv0pLk7WXq1eJkqaKFUlf0VoRnd0600sG0s3rKS';
+    'sk_test_51NmCIqCGmGe8KoMAjcFa7bAHAhfU17ifmjED3gobOj5WtBHN3NEAwX7CZSPTTzDK3Kur1VLrtN0xXxp2mrD78n4F00NTSRPYat';
 
   if (!secretKey) {
     return res.status(500).json({
@@ -44,7 +44,7 @@ export default async function handler(
 
     const paymentIntent = await stripe.paymentIntents.create({
       amount: price,
-      currency: 'usd',
+      currency: 'eur',
       payment_method_types: ['card'],
     });
 

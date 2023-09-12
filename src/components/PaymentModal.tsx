@@ -3,7 +3,7 @@ import CheckoutForm from './CheckoutForm';
 import { Elements } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
 const stripePromise = loadStripe(
-  'pk_live_51NmCIqCGmGe8KoMAmfsD3xky4bmbkYTy9p8dpepU4YvfW3fzobvHL1RRsu3qECe7pdDckMJiQngyCvy1rQ56m5oG00gkTKstMu'
+  'pk_test_51NmCIqCGmGe8KoMAJMokNwcKduvYjpunINiubvC8pI0OR68BtfC41tZ0hnvypZY3RpdrCBZAZHTFWqfPBcZgDDzu00V1Yhyamk'
 );
 
 interface Props {
