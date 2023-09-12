@@ -92,12 +92,19 @@ export default function Header({ user }: headerProps) {
                 <AvatarIcon />
               </Link>
               {showLogoutModal && (
-                <button
-                  onClick={handleLogout}
-                  className='absolute top-0 right-0 bg-red-500 text-white px-2 py-1'
-                >
-                  Logout
-                </button>
+                <>
+                  <button>
+                    <Link href='/settings'>
+                      <button>Settings</button>
+                    </Link>
+                  </button>
+                  <button
+                    onClick={handleLogout}
+                    className='absolute top-0 right-0 bg-red-500 text-white px-2 py-1'
+                  >
+                    Logout
+                  </button>
+                </>
               )}
             </div>
           </div>

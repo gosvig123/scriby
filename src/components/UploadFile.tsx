@@ -41,7 +41,6 @@ const FileUploadComponent = () => {
     }
   };
 
-
   return (
     <div className='bg-white w-5/6 flex p-5 flex-col m-auto gap-3 rounded-lg items-center mt-5 justify-center'>
       <h1 className='text-2xl self-start font-mono'>Upload File</h1>
@@ -72,7 +71,7 @@ const FileUploadComponent = () => {
         {selectedFile && <p>File selected: {selectedFile.name}</p>}
       </div>
       <div className='mt-3 flex justify-center gap-5 w-3/4 items-center'>
-        <p className='text-2xl font-mono '>Start transcribing</p>
+        <p className='text-2xl font-mono '>Start transcribing now</p>
         {selectedFile && (
           <button
             onClick={handleSubmit}
@@ -81,7 +80,9 @@ const FileUploadComponent = () => {
             Transcribe
           </button>
         )}
-        <button className='solidPurpleButton'>download</button>
+        <button className='solidPurpleButton h-12 w-25'>
+          Start Transcription
+        </button>
       </div>
     </div>
   );

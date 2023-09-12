@@ -5,12 +5,7 @@ import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import DashboardSubHeader from '@/components/DashboardSubHeader';
 import TranscriptionList from '@/components/TranscriptionList';
-// import CheckoutForm from '@/components/CheckoutForm';
-// import { loadStripe } from '@stripe/stripe-js';
-// const stripePromise = loadStripe(
-//   'pk_live_51NmCIqCGmGe8KoMAmfsD3xky4bmbkYTy9p8dpepU4YvfW3fzobvHL1RRsu3qECe7pdDckMJiQngyCvy1rQ56m5oG00gkTKstMu'
-// );
-// import { Elements } from '@stripe/react-stripe-js';
+
 interface IUser {
   email: string;
   userId: number;
@@ -46,7 +41,6 @@ export default function Dashboard({ user }: dashboardProps) {
         // Handle the error case
         console.error('Failed to fetch transcriptions');
       }
-      console.log('props', user);
     };
 
     fetchTranscriptions();
@@ -60,13 +54,7 @@ export default function Dashboard({ user }: dashboardProps) {
         <TranscriptionList transcriptions={transcriptions} />
       ),
     },
-    // {
-    //   name: 'Settings',
-    //   component: <div>Example component for settings</div>,
-    // },
   ];
-
-  const price = 40;
 
   useEffect(() => {
     fullUrl.includes('firstlogin')
@@ -114,9 +102,7 @@ export default function Dashboard({ user }: dashboardProps) {
     </div>
   );
 }
-      // <Elements stripe={stripePromise}>
-      //   <CheckoutForm price={price} />
-      // </Elements>{' '}
+
 
 import { GetServerSideProps } from 'next';
 import jwt from 'jsonwebtoken';
