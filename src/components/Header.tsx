@@ -2,8 +2,6 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import LoginModal from './auth/LoginModal';
-import { useRouter } from 'next/router';
-import { decodeCookie } from '../../lib/jwt/decodeToken';
 import Cookies from 'js-cookie';
 
 const AvatarIcon = () => (
@@ -68,7 +66,7 @@ export default function Header({ user }: headerProps) {
       setUserEmail(user.email);
       setIsAuthenticated(true);
     }
-  }, []); // The empty depend
+  }, []);
   return (
     <div
       className={`flex flex-col overflow-hidden items-center justify-between p-5 ${
@@ -84,27 +82,27 @@ export default function Header({ user }: headerProps) {
         {isAuthenticated ? (
           <div className='flex items-center gap-5'>
             {userEmail}
-            <div
-              onMouseEnter={() => setShowLogoutModal(true)}
-              onMouseLeave={() => setShowLogoutModal(false)}
-            >
+            <div onMouseEnter={() => setShowLogoutModal(true)}>
               <Link href='/settings'>
                 <AvatarIcon />
               </Link>
               {showLogoutModal && (
-                <>
-                  <button>
-                    <Link href='/settings'>
-                      <button>Settings</button>
-                    </Link>
-                  </button>
+                <div
+                  className='absolute bg-white flex flex-col w-48 h-48 space-y-2 mt-10 p-4 right-4 top-4 rounded-lg shadow-md justify-center gap-5'
+                  onMouseLeave={() => setShowLogoutModal(false)}
+                >
+                  <Link href='/settings'>
+                    <button className='bg-gray-200 text-black px-4 py-1 w-full'>
+                      Settings
+                    </button>{' '}
+                  </Link>
                   <button
                     onClick={handleLogout}
-                    className='absolute top-0 right-0 bg-red-500 text-white px-2 py-1'
+                    className='bg-red-500 text-white px-4 py-1 w-full'
                   >
                     Logout
                   </button>
-                </>
+                </div>
               )}
             </div>
           </div>
