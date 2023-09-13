@@ -1,5 +1,5 @@
 import React, { useState, forwardRef } from 'react';
-
+import Link from 'next/link';
 interface InputProps
   extends React.InputHTMLAttributes<HTMLInputElement> {
   className?: string;
@@ -21,9 +21,19 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
 
 Input.displayName = 'Input';
 
-const ProfileSettings: React.FC = () => {
+interface IUser {
+  email: string;
+  userId: number;
+  iat: number;
+}
+
+interface settingsProps {
+  user: IUser;
+}
+
+const ProfileSettings: React.FC<settingsProps> = ({ user }) => {
   const [activeTab, setActiveTab] = useState('General');
-  const [email, setEmail] = useState('user@example.com');
+  const [email, setEmail] = useState(user.email);
   const [newEmail, setNewEmail] = useState('');
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
@@ -59,26 +69,24 @@ const ProfileSettings: React.FC = () => {
   };
 
   return (
-    <div className='w-full max-w-7xl mx-auto p-10 bg-gradient-to-b from-gray-500 to-gray-600 shadow-md rounded-lg flex text-white'>
+    <div className='flex w-full max-w-7xl mx-auto p-10 bg-gradient-to-b from-gray-500 to-gray-600 shadow-md rounded-lg text-white'>
       {/* Vertical Menu */}
-      <div className='w-1/4 pr-10 border-r-2 border-gray-200'>
+      <div className='w-1/4 pr-10 border-r border-gray-300'>
         <ul className='space-y-4'>
-          {['General', 'Billing', 'Transcription Preferences'].map(
-            (tab) => (
-              <li key={tab}>
-                <button
-                  className={`block w-full text-left px-3 py-2 rounded ${
-                    activeTab === tab
-                      ? 'bg-purple-500'
-                      : 'bg-transparent'
-                  }`}
-                  onClick={() => setActiveTab(tab)}
-                >
-                  {tab}
-                </button>
-              </li>
-            )
-          )}
+          {['General', '', ''].map((tab) => (
+            <li key={tab}>
+              <button
+                className={`w-full text-left px-3 py-2 rounded ${
+                  activeTab === tab
+                    ? 'bg-purple-500'
+                    : 'bg-transparent'
+                }`}
+                onClick={() => setActiveTab(tab)}
+              >
+                {tab}
+              </button>
+            </li>
+          ))}
         </ul>
       </div>
 
@@ -100,23 +108,13 @@ const ProfileSettings: React.FC = () => {
                 readOnly
               />
             </div>
-            <div className='mb-4'>
-              <label className='block mb-2' htmlFor='newEmail'>
-                New Email:
-              </label>
-              <Input
-                id='newEmail'
-                type='email'
-                value={newEmail}
-                onChange={(e) => setNewEmail(e.target.value)}
-              />
-            </div>
+
             <div className='mb-4'>
               <label className='block mb-2' htmlFor='currentPassword'>
-                Current Password (for verification):
+                Current Password:
               </label>
               <Input
-                id='currentPassword'
+                id='current Password'
                 type='password'
                 value={currentPassword}
                 onChange={(e) => setCurrentPassword(e.target.value)}
@@ -144,44 +142,19 @@ const ProfileSettings: React.FC = () => {
                 onChange={(e) => setConfirmPassword(e.target.value)}
               />
             </div>
-            <button
-              className='solidPurpleButton mr-2'
-              onClick={handleEmailChange}
-            >
-              Update Email
-            </button>
+
             <button
               className='solidPurpleButton'
               onClick={handlePasswordChange}
             >
               Update Password
             </button>
+            <Link href='/dashboard'>
+              <button className='solidGreenButton ml-2'>
+                back to dashboard
+              </button>
+            </Link>
           </>
-        )}
-
-        {activeTab === 'Billing' && (
-          <div>
-            <h2 className='text-2xl font-bold mb-5'>Billing Info</h2>
-            <button className='solidGreenButton'>
-              Update Billing
-            </button>
-            <input type='range' className='mt-5' />
-          </div>
-        )}
-
-        {activeTab === 'Transcription Preferences' && (
-          <div>
-            <h2 className='text-2xl font-bold mb-5'>
-              Transcription Preferences
-            </h2>
-            <label
-              htmlFor='fileUpload'
-              className='custom-file-upload'
-            >
-              Upload Transcript
-            </label>
-            <input type='file' id='fileUpload' />
-          </div>
         )}
       </div>
     </div>
