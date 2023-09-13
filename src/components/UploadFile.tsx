@@ -80,7 +80,7 @@ const FileUploadComponent = () => {
             Transcribe
           </button>
         )}
-        <button className='solidPurpleButton h-12 w-25'>
+        <button className='solidPurpleButton p-2'>
           Start Transcription
         </button>
       </div>
