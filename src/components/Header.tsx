@@ -60,9 +60,7 @@ export default function Header({ user }: headerProps) {
     }
   }
   useEffect(() => {
-    console.log(user);
     if (user) {
-      console.log(user);
       setUserEmail(user.email);
       setIsAuthenticated(true);
     }
