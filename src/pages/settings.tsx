@@ -14,7 +14,7 @@ const settings = ({ user }: settingsProps) => {
   return (
     <div>
       <Header user={user} />
-      <ProfileSettings />
+      <ProfileSettings user={user} />
     </div>
   );
 };

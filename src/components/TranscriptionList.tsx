@@ -16,7 +16,7 @@ const TranscriptionsList = ({
 
   const [checkedTranscriptions, setCheckedTranscriptions] = useState<
     string[]
-  >([]); 
+  >([]);
   const handleCheckboxChange = (
     itemName: string,
     isChecked: boolean
@@ -76,9 +76,7 @@ const TranscriptionsList = ({
                 <option value='pdf'>PDF</option>
                 <option value='docx'>DOCX</option>
               </select>
-              <button className='px-4 py-2 mx-5 bg-green-500 text-white rounded-lg text-md md:text-lg hover:bg-green-600'>
-                Download
-              </button>
+              <button className='solidPurpleButton'>Download</button>
             </li>
           ))}
         </ul>
