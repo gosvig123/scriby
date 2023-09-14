@@ -56,8 +56,8 @@ const FileUploadComponent = () => {
           alt='Upload icon'
           className='w-32 h-32 mx-auto grayscale '
         />
-        <p className='text-2xl'>Drop a file here</p>
         <p>Supporting mp3, mp4, and webm, max 10mb</p>
+        <p className='text-2xl'>Drop a file here</p>
         <p className='text-2xl'>Or</p>
         <label className='custom-file-upload'>
           <input
@@ -80,9 +80,6 @@ const FileUploadComponent = () => {
             Transcribe
           </button>
         )}
-        <button className='solidPurpleButton p-2'>
-          Start Transcription
-        </button>
       </div>
     </div>
   );

@@ -60,6 +60,8 @@ export default async (req: any, res: any) => {
   }
 
   upload.single('file')(req, res, async (err) => {
+
+    
     if (err) {
       console.error('Error with file upload:', err);
       return res
@@ -105,15 +107,20 @@ export default async (req: any, res: any) => {
       }
 
       // Convert the transcribed text to a Buffer
-      const transcriptionBuffer = Buffer.from(transcription, 'utf-8');
+      const transcriptionBuffer = Buffer.from(
+        JSON.stringify({ transcription: transcription }),
+        'utf-8'
+      );
 
       // Define the path for the .txt file in Supabase storage
-      const txtFilePath = `${email}/${req.file.originalname}.txt`;
+      const filePath = `${email}/${
+        req.file.originalname.split('.')[0]
+      }.json`;
 
       // Upload the .txt file to Supabase storage
       const { error: txtUploadError } = await supabase.storage
         .from('scriby')
-        .upload(txtFilePath, transcriptionBuffer);
+        .upload(filePath, transcriptionBuffer);
 
       if (txtUploadError) {
         console.error(
@@ -133,10 +140,12 @@ export default async (req: any, res: any) => {
       });
 
       // Send a successful response
-      res.status(200).json(newTranscription);
+      return res.status(200).json(newTranscription);
     } catch (error) {
       console.error('Error:', error);
-      res.status(500).json({ error: 'Error transcribing the audio' });
+    return res
+      .status(500)
+      .json({ error: 'Error transcribing the audio' });
     }
   });
 };

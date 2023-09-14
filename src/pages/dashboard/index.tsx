@@ -29,7 +29,9 @@ export default function Dashboard({ user }: dashboardProps) {
       const response = await fetch('/api/getmytranscriptions', {
         credentials: 'include',
       });
+
       if (response.ok) {
+        console.log(response);
         const data: any[] = await response.json();
         console.log(data);
         const formattedData = data.map((item) => ({
@@ -103,10 +105,9 @@ export default function Dashboard({ user }: dashboardProps) {
   );
 }
 
-
 import { GetServerSideProps } from 'next';
 import jwt from 'jsonwebtoken';
-import decrypt from '../../../lib/jwt/cryptography/decryption'; // Your decryption method here
+import decrypt from '../../../lib/jwt/cryptography/decryption';
 import { ENCRYPTION_KEY } from '../../../constants';
 import { parseCookies } from 'nookies';
 
@@ -120,7 +121,7 @@ export const getServerSideProps: GetServerSideProps = async (
     if (!encryptedToken) {
       return {
         redirect: {
-          destination: '/signup', // Redirect to login page if token is not found
+          destination: '/signup',
           permanent: false,
         },
       };
