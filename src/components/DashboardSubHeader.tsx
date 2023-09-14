@@ -1,4 +1,4 @@
-import PaymentModal from './PaymentModal';
+import PaymentModal from './payment/PaymentModal';
 interface IUser {
   email: string;
   userId: number;
@@ -9,7 +9,6 @@ interface IUser {
 import { useEffect, useState } from 'react';
 export default function DashboardSubHeader() {
   const [isPaymentModalOpen, setPaymentModalOpen] = useState(false);
-  const price = 4500;
   const [user, setUser] = useState<IUser | undefined>();
   useEffect(() => {
     async function getMyUser() {
@@ -44,13 +43,8 @@ export default function DashboardSubHeader() {
         <PaymentModal
           isOpen={isPaymentModalOpen}
           onClose={() => setPaymentModalOpen(false)}
-          price={price}
         />{' '}
       </div>
     </div>
   );
 }
-
-
-
-

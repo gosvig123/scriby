@@ -9,11 +9,10 @@ import {
 
 interface Props {
   price: number;
+  hours: number;
 }
 
-const clientSecret =
-  'sk_test_51MWlLsGBL31qIrQExIrjz7aRXJWxfirJB6ABrOzfsccq55HZ3SNYIlDYP66Jv0pLk7WXq1eJkqaKFUlf0VoRnd0600sG0s3rKS';
-export default function CheckoutForm({ price }: Props) {
+export default function CheckoutForm({ price, hours }: Props) {
   const stripe = useStripe();
   const elements = useElements();
   const [message, setMessage] = useState<string>('');
@@ -171,7 +170,7 @@ export default function CheckoutForm({ price }: Props) {
             ></path>
           </svg>
         ) : (
-          `Pay $${price / 100}`
+          `Pay $${price * hours}`
         )}
       </button>
       {message && <div className='text-red-500 pt-2'>{message}</div>}
