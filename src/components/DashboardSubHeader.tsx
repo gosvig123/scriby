@@ -1,17 +1,37 @@
 import PaymentModal from './PaymentModal';
+interface IUser {
+  email: string;
+  userId: number;
+  iat: number;
+  credits: number;
+}
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 export default function DashboardSubHeader() {
   const [isPaymentModalOpen, setPaymentModalOpen] = useState(false);
   const price = 4500;
-  //TODO get user minutes
+  const [user, setUser] = useState<IUser | undefined>();
+  useEffect(() => {
+    async function getMyUser() {
+      const response = await fetch('/api/user/myuser', {
+        method: 'GET',
+        credentials: 'include',
+      });
+      const data = await response.json();
+      setUser(data);
+    }
+    getMyUser();
+  }, []);
+
   //TODO get price
+  console.log(user);
   return (
     <div className='w-full flex flex-auto px-5 '>
       <div className='w-full gap-5   bg-white text-center items-center px-4 py-4 flex flex-auto justify-between rounded-lg shadow-lg'>
         <h1 className='text-2xl font-mono font-bold'>Dashboard</h1>
         <p className='text-lg '>
-          You currently have x minutes remaining.
+          You currently have ${user?.credits || ''} credits. {}{' '}
+          minutes remaining.
         </p>
         <button
           className='solidGreenButton'
@@ -30,3 +50,7 @@ export default function DashboardSubHeader() {
     </div>
   );
 }
+
+
+
+

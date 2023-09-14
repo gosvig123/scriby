@@ -1,8 +1,8 @@
 import { parseCookies } from 'nookies';
 import jwt from 'jsonwebtoken';
-import { ENCRYPTION_KEY } from '../../../constants';
-import decrypt from '../../../lib/jwt/cryptography/decryption';
-import { prisma } from '../../../prisma/db';
+import { ENCRYPTION_KEY } from '../../../../constants';
+import decrypt from '../../../../lib/jwt/cryptography/decryption';
+import { prisma } from '../../../../prisma/db';
 export default async function handle(req: any, res: any) {
   if (req.method === 'GET') {
     const cookies = parseCookies({ req });
@@ -32,19 +32,16 @@ export default async function handle(req: any, res: any) {
     if (!userDetails) {
       return res.status(401).json({ error: 'Unauthorized' });
     }
+
     const id = userDetails.userId;
     try {
-      const transcriptions = await prisma.transcription.findMany({
+      const userToReturn = await prisma.user.findUnique({
         where: {
-          userId: id,
-        },
-        select: {
-          name: true,
-          createdAt: true,
+          id: id,
         },
       });
 
-      return res.status(200).json(transcriptions);
+      return res.status(200).json(userToReturn);
     } catch (error) {
       return res.status(500).json({ error: 'Internal Server Error' });
     }

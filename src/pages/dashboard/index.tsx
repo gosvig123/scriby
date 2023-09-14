@@ -10,6 +10,7 @@ interface IUser {
   email: string;
   userId: number;
   iat: number;
+  credits: number;
 }
 
 interface dashboardProps {
@@ -25,7 +26,6 @@ export default function Dashboard({ user }: dashboardProps) {
 
   useEffect(() => {
     const fetchTranscriptions = async () => {
-      // Assuming the user ID is 1, replace this with actual user ID or authentication mechanism.
       const response = await fetch('/api/getmytranscriptions', {
         credentials: 'include',
       });
@@ -76,7 +76,7 @@ export default function Dashboard({ user }: dashboardProps) {
   return (
     <div className='w-full h-full min-h-screen overflow-hidden'>
       <Header user={user} />
-      <DashboardSubHeader />
+      <DashboardSubHeader user={user} />
       <div className='tabs w-full flex mt-4 ml-5'>
         {tabs.map((tab) => (
           <button
