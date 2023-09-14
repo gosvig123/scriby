@@ -15,6 +15,7 @@ model User {
   authMethods   AuthMethod[]
   authlink      AuthLink?
   sessionId     String?
+  credits       Float @default(0)
   transcriptions Transcription[]
 
 }
@@ -53,3 +54,4 @@ model Transcription {
   userId      Int
   user        User      @relation(fields: [userId], references: [id])  //
 }
+
