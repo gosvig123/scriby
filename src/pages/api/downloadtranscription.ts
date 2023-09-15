@@ -1,21 +1,13 @@
-import { createClient } from '@supabase/supabase-js';
 import { parseCookies } from 'nookies';
 import jwt from 'jsonwebtoken';
 import decrypt from '../../../lib/jwt/cryptography/decryption';
-import { ENCRYPTION_KEY } from '../../../constants';
-const supabaseUrl = 'https://wosbhxghmxqqwsrejrnl.supabase.co';
-const supabaseKey =
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indvc2JoeGdobXhxcXdzcmVqcm5sIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTY4NzExNDc2MCwiZXhwIjoyMDAyNjkwNzYwfQ.zBVHoCGc-lgX4iNRLOYMduCrKQBXWcocVay578eFW-E'; //
-const supabase = createClient(supabaseUrl, supabaseKey, {
-  auth: {
-    persistSession: false,
-  },
-});
+import { ENCRYPTION_KEY, START_SUPABASE } from '../../../constants';
 
 export default async (req: any, res: any) => {
   if (req.method !== 'GET') {
     return res.status(405).end();
   }
+  const supabase = await START_SUPABASE;
   const cookies = parseCookies({ req });
   const encryptedToken = cookies.token;
 

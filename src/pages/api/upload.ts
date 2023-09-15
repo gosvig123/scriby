@@ -1,10 +1,9 @@
 import axios from 'axios';
 import FormData from 'form-data';
 import multer from 'multer';
-import { createClient } from '@supabase/supabase-js';
 import { parseCookies } from 'nookies';
 import jwt from 'jsonwebtoken';
-import { ENCRYPTION_KEY } from '../../../constants';
+import { ENCRYPTION_KEY, OPEN_AI_KEY, SUPERBASE_SECRET, START_SUPABASE } from '../../../constants';
 import decrypt from '../../../lib/jwt/cryptography/decryption';
 export const config = {
   api: {
@@ -16,16 +15,10 @@ import { prisma } from '../../../prisma/db';
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
-const supabaseUrl = 'https://wosbhxghmxqqwsrejrnl.supabase.co'; // replace with your Supabase project URL
-const supabaseKey =
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indvc2JoeGdobXhxcXdzcmVqcm5sIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTY4NzExNDc2MCwiZXhwIjoyMDAyNjkwNzYwfQ.zBVHoCGc-lgX4iNRLOYMduCrKQBXWcocVay578eFW-E'; // replace with your Supabase service role key
-const supabase = createClient(supabaseUrl, supabaseKey, {
-  auth: {
-    persistSession: false,
-  },
-});
+
 
 export default async (req: any, res: any) => {
+  const supabase = await START_SUPABASE;
   const cookies = parseCookies({ req });
   const encryptedToken = cookies.token;
 
@@ -60,8 +53,6 @@ export default async (req: any, res: any) => {
   }
 
   upload.single('file')(req, res, async (err) => {
-
-    
     if (err) {
       console.error('Error with file upload:', err);
       return res
@@ -74,7 +65,7 @@ export default async (req: any, res: any) => {
     }
 
     // Transcription process
-    const key = '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';
+    const key = await OPEN_AI_KEY;
     const model = 'whisper-1';
     const formData = new FormData();
     formData.append('model', model);
@@ -143,9 +134,9 @@ export default async (req: any, res: any) => {
       return res.status(200).json(newTranscription);
     } catch (error) {
       console.error('Error:', error);
-    return res
-      .status(500)
-      .json({ error: 'Error transcribing the audio' });
+      return res
+        .status(500)
+        .json({ error: 'Error transcribing the audio' });
     }
   });
 };

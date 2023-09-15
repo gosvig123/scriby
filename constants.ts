@@ -1,4 +1,5 @@
 import { config } from 'dotenv';
+import { createClient } from '@supabase/supabase-js';
 
 config();
 
@@ -23,18 +24,42 @@ async function getJWTSecret() {
   return JWT_SECRET;
 }
 
-async function getEncryptionKey() {
-  const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY;
+async function getStripeSecretKey() {
+  const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY;
 
-  if (!ENCRYPTION_KEY) {
-    throw new Error('ENCRYPTION_KEY must be set');
+  if (!STRIPE_SECRET_KEY) {
+    throw new Error('STRIPE_SECRET_KEY must be set');
   }
 
-  return ENCRYPTION_KEY;
+  return STRIPE_SECRET_KEY;
 }
 
-const ENCRYPTION_KEY = getEncryptionKey();
-const JWT_SECRET = getJWTSecret();
+ async function getEncryptionKey() {
+   const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY;
+
+   if (!ENCRYPTION_KEY) {
+     throw new Error('ENCRYPTION_KEY must be set');
+   }
+
+   return ENCRYPTION_KEY;
+ }
+
+ async function getAIKey() {
+   const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
+
+   if (!OPENAI_API_KEY) {
+     throw new Error('STRIPE_PUBLIC_KEY must be set');
+   }
+
+   return OPENAI_API_KEY;
+ }
+
+ const OPEN_AI_KEY = getAIKey();
+
+ const ENCRYPTION_KEY = getEncryptionKey();
+ const JWT_SECRET = getJWTSecret();
+ const STRIPE_SECRET_KEY = getStripeSecretKey();
+
 
 async function getGoogleClientId() {
   const GOOGLE_CLIENT_ID = process.env.GOOGLE_OAUTH_ID;
@@ -48,4 +73,41 @@ async function getGoogleClientId() {
 
 const GOOGLE_CLIENT_ID = getGoogleClientId();
 
-export { DATABASE_URL, JWT_SECRET, GOOGLE_CLIENT_ID, ENCRYPTION_KEY };
+async function getSuperBaseSecret() {
+  const SUPERBASE_SECRET = process.env.SUPERBASE_ANON_KEY;
+
+  if (!SUPERBASE_SECRET) {
+    throw new Error('SUPERBASE_SECRET must be set');
+  }
+
+  return SUPERBASE_SECRET;
+}
+
+const SUPERBASE_SECRET = getSuperBaseSecret();
+
+async function initiateSuperbase() {
+  const supabaseUrl = 'https://wosbhxghmxqqwsrejrnl.supabase.co';
+
+  const supabaseKey = await SUPERBASE_SECRET;
+
+  const supabase = createClient(supabaseUrl, supabaseKey, {
+    auth: {
+      persistSession: false,
+    },
+  });
+
+  return supabase;
+}
+
+const START_SUPABASE = initiateSuperbase();
+
+export {
+  DATABASE_URL,
+  JWT_SECRET,
+  GOOGLE_CLIENT_ID,
+  ENCRYPTION_KEY,
+  STRIPE_SECRET_KEY,
+  OPEN_AI_KEY,
+  SUPERBASE_SECRET,
+  START_SUPABASE,
+};

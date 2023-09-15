@@ -1,4 +1,5 @@
 import Stripe from 'stripe';
+import { STRIPE_SECRET_KEY,  } from '../../../constants';
 
 export default async function handler(
   req: { method: string; body: { price: any } },
@@ -23,12 +24,9 @@ export default async function handler(
     return res.status(405).end();
   }
 
-  // Store the secret key in an environment variable or use a secrets manager
-  const secretKey =
-    process.env.STRIPE_SECRET_KEY ||
-    'sk_test_51NmCIqCGmGe8KoMAjcFa7bAHAhfU17ifmjED3gobOj5WtBHN3NEAwX7CZSPTTzDK3Kur1VLrtN0xXxp2mrD78n4F00NTSRPYat';
+  const secretKey = await STRIPE_SECRET_KEY;
 
-  if (!secretKey) {
+  if (!STRIPE_SECRET_KEY) {
     return res.status(500).json({
       statusCode: 500,
       message: 'Stripe secret key is not set',

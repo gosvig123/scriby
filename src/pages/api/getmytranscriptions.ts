@@ -49,6 +49,6 @@ export default async function handle(req: any, res: any) {
       return res.status(500).json({ error: 'Internal Server Error' });
     }
   } else {
-    return res.status(405).end(); // Method not allowed
+    return res.status(405).end(); 
   }
 }
