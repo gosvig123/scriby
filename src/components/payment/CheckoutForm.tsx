@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import {
   CardNumberElement,
   CardExpiryElement,
@@ -11,12 +11,14 @@ interface Props {
   price: number;
   hours: number;
   clientSecret: string | null;
+  onClose: () => void;
 }
 
 export default function CheckoutForm({
   price,
   hours,
   clientSecret,
+  onClose,
 }: Props) {
   const [showModal, setShowModal] = useState(false);
   const totalPrice = (price * hours).toFixed(2);
@@ -58,6 +60,9 @@ export default function CheckoutForm({
       setMessage(error.message || 'An unexpected error occurred.');
     } else if (paymentIntent?.status === 'succeeded') {
       setShowModal(true);
+      setTimeout(() => {
+        onClose();
+      }, 5000);
     } else {
       setMessage('Payment failed, please try again.');
     }

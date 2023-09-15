@@ -79,6 +79,7 @@ const PaymentModal: React.FC<Props> = ({ isOpen, onClose }) => {
                 price={price}
                 hours={hours}
                 clientSecret={clientSecret}
+                onClose={close}
               />
             </Elements>
           )}
