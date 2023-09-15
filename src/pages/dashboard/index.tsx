@@ -76,7 +76,7 @@ export default function Dashboard({ user }: dashboardProps) {
   return (
     <div className='w-full h-full min-h-screen overflow-hidden'>
       <Header user={user} />
-      <DashboardSubHeader user={user} />
+      <DashboardSubHeader />
       <div className='tabs w-full flex mt-4 ml-5'>
         {tabs.map((tab) => (
           <button

@@ -1,5 +1,5 @@
 import Stripe from 'stripe';
-import { STRIPE_SECRET_KEY,  } from '../../../constants';
+import { STRIPE_SECRET_KEY } from '../../../constants';
 
 export default async function handler(
   req: { method: string; body: { price: any } },
@@ -38,11 +38,15 @@ export default async function handler(
   });
 
   try {
-    const { price } = req.body;
+    const { totalPrice }: any = req.body;
+
+    let priceInCents = totalPrice * 100;
+
+    priceInCents = Math.floor(priceInCents);
 
     const paymentIntent = await stripe.paymentIntents.create({
-      amount: price,
-      currency: 'eur',
+      amount: priceInCents,
+      currency: 'usd',
       payment_method_types: ['card'],
     });
 

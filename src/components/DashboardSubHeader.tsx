@@ -22,8 +22,7 @@ export default function DashboardSubHeader() {
     getMyUser();
   }, []);
 
-  //TODO get price
-  console.log(user);
+
   return (
     <div className='w-full flex flex-auto px-5 '>
       <div className='w-full gap-5   bg-white text-center items-center px-4 py-4 flex flex-auto justify-between rounded-lg shadow-lg'>

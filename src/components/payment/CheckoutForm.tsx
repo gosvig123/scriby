@@ -6,41 +6,24 @@ import {
   useStripe,
   useElements,
 } from '@stripe/react-stripe-js';
-
+import Notification from '../Alert';
 interface Props {
   price: number;
   hours: number;
+  clientSecret: string | null;
 }
 
-export default function CheckoutForm({ price, hours }: Props) {
+export default function CheckoutForm({
+  price,
+  hours,
+  clientSecret,
+}: Props) {
+  const [showModal, setShowModal] = useState(false);
+  const totalPrice = (price * hours).toFixed(2);
   const stripe = useStripe();
   const elements = useElements();
   const [message, setMessage] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [clientSecret, setClientSecret] = useState<string | null>(
-    null
-  );
-
-  useEffect(() => {
-    // Fetch the client secret from the server
-
-    async function fetchClientSecret() {
-      const response = await fetch('/api/createpayment', {
-        // Change the endpoint to your server API
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ price }),
-      });
-
-      const data = await response.json();
-
-      setClientSecret(data.clientSecret);
-    }
-
-    fetchClientSecret();
-  }, [price]);
 
   const handleSubmit = async (
     e: React.FormEvent<HTMLFormElement>
@@ -74,7 +57,7 @@ export default function CheckoutForm({ price, hours }: Props) {
     if (error) {
       setMessage(error.message || 'An unexpected error occurred.');
     } else if (paymentIntent?.status === 'succeeded') {
-      setMessage('Payment succeeded!');
+      setShowModal(true);
     } else {
       setMessage('Payment failed, please try again.');
     }
@@ -87,6 +70,13 @@ export default function CheckoutForm({ price, hours }: Props) {
       onSubmit={handleSubmit}
       className='w-full max-w-md mx-auto p-8 space-y-4 bg-white shadow-lg rounded-xl'
     >
+      {showModal && (
+        <Notification
+          text='You have successfully Topped up your account you can now transcribe more files'
+          status='success'
+        />
+      )}
+
       <div className='bg-gray-200 rounded-lg p-2'>
         <label className='block'>
           <p className='text-lg text-gray-700 mb-1'>Card Number</p>
@@ -170,7 +160,7 @@ export default function CheckoutForm({ price, hours }: Props) {
             ></path>
           </svg>
         ) : (
-          `Pay $${price * hours}`
+          `Pay $${totalPrice}`
         )}
       </button>
       {message && <div className='text-red-500 pt-2'>{message}</div>}
