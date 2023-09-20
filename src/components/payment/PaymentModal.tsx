@@ -31,7 +31,6 @@ const PaymentModal: React.FC<Props> = ({ isOpen, onClose }) => {
 
   async function showCardDetailsHandler() {
     const totalPrice = price * hours;
-    console.log(totalPrice);
     const response = await fetch('/api/createpayment', {
       // Change the endpoint to your server API
       method: 'POST',
@@ -43,7 +42,6 @@ const PaymentModal: React.FC<Props> = ({ isOpen, onClose }) => {
 
     const data = await response.json();
 
-    console.log(data);
 
     setClientSecret(data.clientSecret);
 

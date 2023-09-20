@@ -28,8 +28,8 @@ export default function DashboardSubHeader() {
       <div className='w-full gap-5   bg-white text-center items-center px-4 py-4 flex flex-auto justify-between rounded-lg shadow-lg'>
         <h1 className='text-2xl font-mono font-bold'>Dashboard</h1>
         <p className='text-lg '>
-          You currently have ${user?.credits || ''} credits. {}{' '}
-          minutes remaining.
+          You currently have {user?.credits || ''} minutes of
+          transcription remaining.
         </p>
         <button
           className='solidGreenButton'

@@ -59,6 +59,7 @@ export default function CheckoutForm({
     if (error) {
       setMessage(error.message || 'An unexpected error occurred.');
     } else if (paymentIntent?.status === 'succeeded') {
+      await postMinutes();
       setShowModal(true);
       setTimeout(() => {
         onClose();
@@ -69,6 +70,19 @@ export default function CheckoutForm({
 
     setIsLoading(false);
   };
+
+  async function postMinutes() {
+    try {
+      const response: any = await fetch('/api/user/updateuser', {
+        method: 'PUT',
+        credentials: 'include',
+        body: JSON.stringify({ credits: hours * 60 }),
+      });
+      console.log(response);
+    } catch (error) {
+      console.error('Error uploading file:', error);
+    }
+  }
 
   return (
     <form

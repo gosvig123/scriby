@@ -97,7 +97,11 @@ function GoogleLogin({ onSuccess }: any) {
               width={30}
               height={30}
             />
-            Sign up with Google
+            {window.location.pathname === '/signup' ? (
+              <p>Sign up with Google</p>
+            ) : (
+              <p>Sign in with Google</p>
+            )}
           </button>
         )}
       />
