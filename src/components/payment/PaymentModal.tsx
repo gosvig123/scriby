@@ -47,40 +47,41 @@ const PaymentModal: React.FC<Props> = ({ isOpen, onClose }) => {
 
     setShowCardDetails(true);
   }
-
   return (
     <div className='fixed inset-0 flex items-center justify-center z-50'>
-      <div className='bg-white p-8 rounded-lg shadow-lg w-5/6 z-10'>
+      <div className='bg-white p-4 mx-40 rounded-lg  w-2/5 z-10'>
         <button onClick={close} className='float-right'>
           Close
         </button>
         <h2 className='text-2xl mb-4'>Complete Your Purchase</h2>
-        <div className='flex items-end'>
-          <div className='flex flex-col items-center justify-center w-full gap-2 p-3 border rounded-lg border-gray-300'>
-            {showCardDetails === false && (
-              <>
-                <ButtonCounter hours={hours} setHours={setHours} />
-                <Slider hours={hours} setHours={setHours} />
-              </>
-            )}
-            <PricingCard
-              price={price}
-              hours={hours}
-              setPrice={setPrice}
-              onButtonClick={showCardDetailsHandler}
-              showCardDetails={showCardDetails}
-            />
-          </div>
-          {showCardDetails && (
-            <Elements stripe={stripePromise}>
-              <CheckoutForm
+        <div className='flex items-end w-full'>
+          <div className='flex w-full gap-5'>
+            <div className='flex flex-col w-full justify-center items-center gap-2 p-3  border rounded-lg border-gray-300'>
+              {showCardDetails === false && (
+                <>
+                  <ButtonCounter hours={hours} setHours={setHours} />
+                  <Slider hours={hours} setHours={setHours} />
+                </>
+              )}
+              <PricingCard
                 price={price}
                 hours={hours}
-                clientSecret={clientSecret}
-                onClose={close}
+                setPrice={setPrice}
+                onButtonClick={showCardDetailsHandler}
+                showCardDetails={showCardDetails}
               />
-            </Elements>
-          )}
+            </div>
+            {showCardDetails && (
+              <Elements stripe={stripePromise}>
+                <CheckoutForm
+                  price={price}
+                  hours={hours}
+                  clientSecret={clientSecret}
+                  onClose={close}
+                />
+              </Elements>
+            )}
+          </div>
         </div>
       </div>
       <div

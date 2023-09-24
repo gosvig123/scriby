@@ -37,9 +37,10 @@ const PricingCard: React.FC<PricingCardProps> = ({
   }, [hours, price]);
 
   const totalPrice = (price * hours).toFixed(2);
+  // TODO center the bullet points in the open space
 
   return (
-    <div className='bg-white rounded-lg mt-10  shadow-lg p-6  w-3/5'>
+    <div className='bg-white rounded-lg mt-10 h-full w-full'>
       <h2 className='text-5xl purpleText   mb-4'>Price & Hours</h2>
       <div className='flex justify-between items-center mb-1'>
         <p>Total Hours:</p>
