@@ -27,10 +27,10 @@ export default function Pricing() {
   }, [hours, pricePerHour]);
 
   return (
-    <div className='w-screen h-full '>
+    <div className='w-screen h-screen overflow-hidden'>
       <Header user={undefined} />
-      <div className='flex w-full   h-full '>
-        <div className='w-3/5 h-full text-center  items-center p-10 flex flex-col '>
+      <div className='flex w-full h-3/4 px-5 '>
+        <div className='w-3/5 h-3/4 text-center  flex-auto justify-around items-center px-20 flex flex-col '>
           <h1 className='text-3xl font-sans font-bold mt-20 mb-10'>
             Pricing
           </h1>
@@ -43,7 +43,7 @@ export default function Pricing() {
           <ButtonCounter hours={hours} setHours={setHours} />
           <Slider hours={hours} setHours={setHours} />
         </div>
-        <div className='w-3/5 h-full flex flex-col mt-10 items-center'>
+        <div className='w-3/5 h-3/4 rounded-xl justify-center  flex flex-col mt-10 bg-white mx-auto p-10'>
           <PricingCard
             price={pricePerHour}
             hours={hours}

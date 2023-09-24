@@ -40,7 +40,7 @@ const PricingCard: React.FC<PricingCardProps> = ({
   // TODO center the bullet points in the open space
 
   return (
-    <div className='bg-white rounded-lg mt-10 h-full w-full'>
+    <div className='bg-white rounded-lg mt-10 h-full w-full flex flex-col gap-5 px-5'>
       <h2 className='text-5xl purpleText   mb-4'>Price & Hours</h2>
       <div className='flex justify-between items-center mb-1'>
         <p>Total Hours:</p>
