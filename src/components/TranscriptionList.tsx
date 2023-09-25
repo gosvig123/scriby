@@ -89,19 +89,26 @@ const TranscriptionsList = ({
         throw new Error('Network response was not ok');
       }
 
-      const jsonResponse = await response.json();
-      console.log('Received Text:', jsonResponse.text);
+      const jsonResponse: any = await response.json();
+
+      let onlyText = jsonResponse.text
+        .map((item: any) => item.word)
+        .join(' ');
+
+      console.log(onlyText);
+
+
 
       let blob;
       if (selectedFormat === 'txt') {
-        blob = new Blob([jsonResponse.text], { type: 'text/plain' });
+        blob = new Blob([onlyText], { type: 'text/plain' });
       } else if (selectedFormat === 'pdf') {
-        const pdfBytes = await convertTextToPdf(jsonResponse.text);
+        const pdfBytes = await convertTextToPdf(onlyText);
         blob = new Blob([pdfBytes.buffer], {
           type: 'application/pdf',
         });
       } else if (selectedFormat === 'docx') {
-        blob = await convertTextToDocx(jsonResponse.text);
+        blob = await convertTextToDocx(onlyText);
       }
 
       if (!blob) {
@@ -112,7 +119,7 @@ const TranscriptionsList = ({
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = fileNameToPass; // Now it will have the appropriate extension
+      a.download = fileNameToPass; 
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);

@@ -10,6 +10,7 @@
     "prepare": "husky install"
   },
   "dependencies": {
+    "@google-cloud/speech": "^6.0.2",
     "@prisma/client": "4.15.0",
     "@stripe/react-stripe-js": "^2.1.2",
     "@stripe/stripe-js": "^2.1.1",
