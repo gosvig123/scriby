@@ -6,12 +6,15 @@ import React, {
   useCallback,
   useState,
 } from 'react';
+import Notification from './Alert';
 
 const cloudUploadIcon =
   'https://raw.githubusercontent.com/FortAwesome/Font-Awesome/master/svgs/solid/cloud-upload-alt.svg';
 
 const FileUploadComponent = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+
+  const [showNotification, setShowNotification] = useState(false);
 
   const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
     if (event.target.files) {
@@ -36,6 +39,12 @@ const FileUploadComponent = () => {
     try {
       const response = await axios.post('/api/upload', formData);
       console.log(response.data);
+      setShowNotification(true);
+      setSelectedFile(null);
+
+      setTimeout(() => {
+        setShowNotification(false);
+      }, 4000);
     } catch (error) {
       console.error('Error uploading file:', error);
     }
@@ -43,6 +52,13 @@ const FileUploadComponent = () => {
 
   return (
     <div className='bg-white w-5/6 flex p-5 flex-col m-auto gap-3 rounded-lg items-center mt-5 justify-center'>
+      {showNotification && (
+        <Notification
+          text='File uploaded successfully, check back in a few minutes to see your transcription.'
+          status='success'
+        />
+      )}
+
       <h1 className='text-2xl self-start font-mono'>Upload File</h1>
       <div
         className='bg-gray-100 flex flex-col gap-3 w-full items-center p-6 rounded-md relative'
