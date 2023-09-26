@@ -11,6 +11,23 @@ interface TranscriptionListProps {
   transcriptions: TranscriptionItem[];
 }
 
+function toSRTTime(timeInSeconds: number): string {
+  const pad = (number: number, size: number = 2): string =>
+    String(number).padStart(size, '0');
+  const hours: number = Math.floor(timeInSeconds / 3600);
+  const minutes: number = Math.floor(
+    (timeInSeconds - hours * 3600) / 60
+  );
+  const seconds: number = Math.floor(
+    timeInSeconds - hours * 3600 - minutes * 60
+  );
+  const milliseconds: number = Math.round((timeInSeconds % 1) * 1000);
+  return `${pad(hours)}:${pad(minutes)}:${pad(seconds)},${pad(
+    milliseconds,
+    3
+  )}`;
+}
+
 async function convertTextToPdf(text: string) {
   const pdfDoc = await PDFDocument.create();
 
@@ -36,7 +53,6 @@ async function convertTextToPdf(text: string) {
   return new Uint8Array(pdfBytes);
 }
 
-
 import { Document, Packer, Paragraph, TextRun } from 'docx';
 
 async function convertTextToDocx(text: string) {
@@ -47,9 +63,7 @@ async function convertTextToDocx(text: string) {
         properties: {},
         children: [
           new Paragraph({
-            children: [
-              new TextRun(text),
-            ],
+            children: [new TextRun(text)],
           }),
         ],
       },
@@ -61,7 +75,6 @@ async function convertTextToDocx(text: string) {
 
   return blob;
 }
-
 
 const TranscriptionsList = ({
   transcriptions,
@@ -77,6 +90,7 @@ const TranscriptionsList = ({
         ? 'docx'
         : 'txt';
     const fileNameToPass = `${baseFileName}.${extension}`;
+    let blob;
     try {
       const response = await fetch(
         `/api/downloadtranscription?fileName=${baseFileName}.txt`,
@@ -91,15 +105,19 @@ const TranscriptionsList = ({
 
       const jsonResponse: any = await response.json();
 
+      console.log(jsonResponse);
+      interface Word {
+        word: string;
+        start_time: number;
+        end_time: number;
+      }
+
       let onlyText = jsonResponse.text
-        .map((item: any) => item.word)
+        .map((item: Word) => item.word)
         .join(' ');
 
       console.log(onlyText);
 
-
-
-      let blob;
       if (selectedFormat === 'txt') {
         blob = new Blob([onlyText], { type: 'text/plain' });
       } else if (selectedFormat === 'pdf') {
@@ -107,8 +125,51 @@ const TranscriptionsList = ({
         blob = new Blob([pdfBytes.buffer], {
           type: 'application/pdf',
         });
-      } else if (selectedFormat === 'docx') {
+      }
+      if (selectedFormat === 'docx') {
         blob = await convertTextToDocx(onlyText);
+      } else if (selectedFormat === 'srt') {
+        let srtContent = '';
+        let index = 1;
+
+        jsonResponse.text.forEach((item: Word, idx: number) => {
+          try {
+            // Log for debugging
+            console.log('Processing item: ', item);
+
+            // Validate that start_Time and end_Time are numbers
+            if (
+              typeof item.start_time !== 'number' ||
+              typeof item.end_time !== 'number'
+            ) {
+              console.warn('Invalid time data:', item);
+              return;
+            }
+
+            const startTime: string = toSRTTime(item.start_time);
+            const endTime: string = toSRTTime(item.end_time);
+
+            // Log for debugging
+            console.log('Converted times: ', startTime, endTime);
+
+            srtContent += `${index}\n`;
+            srtContent += `${startTime} --> ${endTime}\n`;
+            srtContent += `${item.word}\n\n`;
+            index++;
+          } catch (error) {
+            console.warn('Error processing time data:', error);
+          }
+        });
+
+        // Log the SRT content
+        console.log('Generated SRT content: ', srtContent);
+
+        // Create the blob only if there is content
+        if (srtContent) {
+          blob = new Blob([srtContent], { type: 'text/plain' });
+        } else {
+          console.warn('SRT content is empty');
+        }
       }
 
       if (!blob) {
@@ -119,7 +180,7 @@ const TranscriptionsList = ({
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = fileNameToPass; 
+      a.download = fileNameToPass;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -164,6 +225,7 @@ const TranscriptionsList = ({
                 <option value='txt'>TXT</option>
                 <option value='pdf'>PDF</option>
                 <option value='docx'>DOCX</option>
+                <option value='srt'>SRT</option>
               </select>
               <button
                 className='solidPurpleButton'
