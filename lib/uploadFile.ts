@@ -1,6 +1,6 @@
 import { prisma } from '../prisma/db';
 import { START_SUPABASE } from '../constants';
-// supabaseOperations.ts
+import { IAudioMetadata } from 'music-metadata';
 export const uploadToSupabase = async (
   email: string,
   originalFileName: string,
@@ -19,17 +19,35 @@ export const uploadToSupabase = async (
   }
 
   return filePath;
-};
+}
 
-// databaseOperations.ts
 export const createTranscriptionRecord = async (
   originalFileName: string,
-  userId: number
+  userId: number,
+  metaData: IAudioMetadata
 ) => {
-  return await prisma.transcription.create({
+  await prisma.transcription.create({
     data: {
       name: originalFileName,
       userId,
     },
   });
+
+  let duration: number | undefined = metaData.format.duration;
+  if (duration) {
+    duration = Math.ceil(duration / 60);
+  }
+
+  await prisma.user.update({
+    where: {
+      id: userId,
+    },
+    data: {
+      credits: {
+        increment: duration,
+      },
+    },
+  });
 };
+
+

@@ -38,9 +38,8 @@ export default async (req: any, res: any) => {
     const originalName = req.file.originalname;
     await uploadToSupabase(email, originalName, transcriptionBuffer);
 
-    await createTranscriptionRecord(originalName, id);
+    await createTranscriptionRecord(originalName, id, metadata);
 
-    // Send a successful response
     return res.status(200).send({
       transcription: transcriptionBuffer,
     });
