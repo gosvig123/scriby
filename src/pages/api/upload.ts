@@ -28,9 +28,13 @@ export default async (req: any, res: any) => {
 
   try {
     await handleFileUpload(req, res);
+    if (!req.file || !req.file.buffer) {
+      return res.status(400).json({ error: 'No file uploaded' });
+    }
     const metadata: IAudioMetadata = await parseAudioMetadata(
       req.file.buffer
     );
+    console.log(metadata);
     const transcriptionBuffer = await transcribeAudioToBuffer(
       req.file.buffer
     );
