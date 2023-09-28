@@ -34,7 +34,6 @@ export default async (req: any, res: any) => {
     const metadata: IAudioMetadata = await parseAudioMetadata(
       req.file.buffer
     );
-    console.log(metadata);
     const transcriptionBuffer = await transcribeAudioToBuffer(
       req.file.buffer
     );
