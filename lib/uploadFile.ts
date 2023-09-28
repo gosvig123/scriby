@@ -44,7 +44,7 @@ export const createTranscriptionRecord = async (
     },
     data: {
       credits: {
-        increment: duration,
+        decrement: duration,
       },
     },
   });
