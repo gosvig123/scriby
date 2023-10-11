@@ -63,12 +63,17 @@ export default function CheckoutForm({
       setShowModal(true);
       setTimeout(() => {
         onClose();
-      }, 5000);
+      }, 3000);
     } else {
       setMessage('Payment failed, please try again.');
     }
 
     setIsLoading(false);
+
+    setTimeout(() => {
+      // refresh the page
+      window.location.reload();
+    }, 3000);
   };
 
   async function postMinutes() {
@@ -91,7 +96,10 @@ export default function CheckoutForm({
     >
       {showModal && (
         <Notification
-          text='You have successfully Topped up your account you can now transcribe more files'
+          text='You have successfully Topped up your account you can now transcribe more files.
+          The page will refresh shortly.
+
+          '
           status='success'
         />
       )}

@@ -45,9 +45,9 @@ export default async (req: any, res: any) => {
     form.append('file', req.file.buffer, {
       filename: req.file.originalname,
     });
-    console.log('buffer', req.file.buffer);
     const response: any = await axios.post(
       'https://api.openai.com/v1/audio/transcriptions',
+      form,
       {
         headers: {
           Authorization: `Bearer ${key}`,
