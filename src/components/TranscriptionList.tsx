@@ -1,11 +1,6 @@
 import React, { useState } from 'react';
 import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
-
-
-interface TranscriptionItem {
-  name: string;
-  date: string;
-}
+import { Word, TranscriptionItem } from '../../types';
 
 interface TranscriptionListProps {
   transcriptions: TranscriptionItem[];
@@ -105,18 +100,14 @@ const TranscriptionsList = ({
 
       const jsonResponse: any = await response.json();
 
-      console.log(jsonResponse);
-      interface Word {
-        word: string;
-        start_time: number;
-        end_time: number;
+      let onlyText = jsonResponse.text;
+      if (Array.isArray(jsonResponse.text)) {
+        onlyText = jsonResponse.text
+          .map((item: Word) => item.word)
+          .join(' ');
+      } else {
+        onlyText = jsonResponse.text.text;
       }
-
-      let onlyText = jsonResponse.text
-        .map((item: Word) => item.word)
-        .join(' ');
-
-      console.log(onlyText);
 
       if (selectedFormat === 'txt') {
         blob = new Blob([onlyText], { type: 'text/plain' });

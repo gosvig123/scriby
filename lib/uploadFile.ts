@@ -26,28 +26,33 @@ export const createTranscriptionRecord = async (
   userId: number,
   metaData: IAudioMetadata
 ) => {
-  await prisma.transcription.create({
-    data: {
-      name: originalFileName,
-      userId,
-    },
-  });
-
-  let duration: number | undefined = metaData.format.duration;
-  if (duration) {
-    duration = Math.ceil(duration / 60);
-  }
-
-  await prisma.user.update({
-    where: {
-      id: userId,
-    },
-    data: {
-      credits: {
-        decrement: duration,
+  try {
+    await prisma.transcription.create({
+      data: {
+        name: originalFileName,
+        userId,
       },
-    },
-  });
+    });
+
+    let duration: number | undefined = metaData.format.duration;
+    if (duration) {
+      duration = Math.ceil(duration / 60);
+    }
+
+    await prisma.user.update({
+      where: {
+        id: userId,
+      },
+      data: {
+        credits: {
+          decrement: duration,
+        },
+      },
+    });
+  } catch (error) {
+    console.error('Error creating transcription record:', error);
+  }
+  return;
 };
 
 
