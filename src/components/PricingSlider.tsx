@@ -29,3 +29,5 @@ export default function Slider({ hours, setHours }: SliderProps) {
     />
   );
 }
+
+console.log('slider');
