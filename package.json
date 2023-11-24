@@ -60,6 +60,7 @@
     "react-dom": "18.2.0",
     "react-google-login": "^5.2.2",
     "react-stripe-elements": "^6.1.2",
+    "resend": "^2.0.0",
     "stream": "^0.0.2",
     "stripe": "^12.9.0",
     "tailwindcss": "3.3.2",

@@ -13,6 +13,18 @@ async function getDataBaseUrl() {
   return DATABASE_URL;
 }
 
+async function getResendKey() {
+  const RESEND_API_KEY = process.env.RESEND_KEY;
+
+  if (!RESEND_API_KEY) {
+    throw new Error("RESEND_API_KEY must be set");
+  }
+
+  return RESEND_API_KEY;
+}
+
+const RESEND_API_KEY = getResendKey();
+
 const DATABASE_URL = getDataBaseUrl();
 async function getJWTSecret() {
   const JWT_SECRET = process.env.JWT_SECRET;
@@ -122,4 +134,5 @@ export {
   SUPERBASE_SECRET,
   START_SUPABASE,
   DEEPGRAM_API_KEY,
+  RESEND_API_KEY,
 };
