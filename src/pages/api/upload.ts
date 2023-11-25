@@ -6,6 +6,7 @@ import { DEEPGRAM_API_KEY } from "../../../constants";
 // Multer setup (for in-memory storage, can be adjusted as needed)
 const upload = multer({ storage: multer.memoryStorage() });
 
+
 export const config = {
   api: {
     bodyParser: false,
@@ -20,6 +21,7 @@ export default async function handler(req: any, res: any) {
     if (err) {
       return res.status(500).json({ error: "Error uploading the file" });
     }
+
 
     const deepgram = new Deepgram(await DEEPGRAM_API_KEY);
 
