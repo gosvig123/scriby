@@ -1,6 +1,4 @@
-// import postUser from '../serverActions/dbActions/postUser';
 import { FormEvent, useState, useEffect } from "react";
-// import sendEmail from '../serverActions/sendEmail';
 import Notification from "../components/Alert";
 import dynamic from "next/dynamic";
 const GoogleLogin = dynamic(() => import("../components/auth/GoogleLogin"), {
@@ -42,7 +40,6 @@ function Signup() {
   };
 
   async function handleSignup(e: FormEvent) {
-    e.preventDefault();
     console.log(isChecked);
     if (!isChecked) {
       console.log("not checked");
@@ -80,44 +77,6 @@ function Signup() {
     }
   }
 
-  const handleGoogleLoginSuccess = async (response: any) => {
-    console.log(response);
-    // The response object has a different structure in react-google-login
-    const { googleId, profileObj } = response;
-    const { email, name, imageUrl } = profileObj;
-
-    // Now, you can use this information as per your app's requirements
-    // For example, send this data to your backend server for user creation or verification
-    try {
-      const userResponse = await fetch("/api/auth/google-login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          googleId,
-          name,
-          email,
-          imageUrl,
-        }),
-      });
-
-      const data = await userResponse.json();
-
-      if (userResponse.ok) {
-        // Handle successful user creation or login
-        console.log("User logged in:", data);
-        // Redirect to dashboard or other page
-        // window.location.href = '/dashboard';
-      } else {
-        // Handle errors
-        console.error("Login error:", data.message);
-      }
-    } catch (error) {
-      console.error("Request failed", error);
-    }
-  };
-
   return (
     <div className="h-screen w-full flex flex-col justify-center items-center">
       <div className="w-4/6 h-4/5 bg-white text-center items-center px-32 py-10 flex flex-col justify-around rounded-lg shadow-lg">
@@ -128,7 +87,7 @@ function Signup() {
           </p>
         </div>
 
-        <GoogleLogin onSuccess={handleGoogleLoginSuccess} />
+        <GoogleLogin />
         <div className="w-full flex flex-col">
           <form
             className="flex flex-col gap-5 text-left text-lg"

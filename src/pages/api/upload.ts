@@ -64,7 +64,6 @@ export default async function handler(req: any, res: any) {
 
     const transcriptionData = response.results?.channels[0].alternatives[0];
 
-    console.log("Transcription: 0", transcriptionData);
     const fileTranscript =
       transcriptionData.transcript || transcriptionData.Transcript;
 

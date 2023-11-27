@@ -4,11 +4,10 @@ let gapi: any;
 const clientId =
   "358155175620-tmo0ped23qte9gpnv4dovqr1i6tj11r6.apps.googleusercontent.com";
 
-function GoogleLogin({ onSuccess }: any) {
+function GoogleLogin() {
   const handleSuccess = async (response: any) => {
     try {
       const userObj = response.profileObj;
-      onSuccess(userObj.googleId); // pass googleId to parent's handleGoogleLogin
 
       // Try to login
       const loginResponse = await fetch("/api/auth/login", {
@@ -53,22 +52,8 @@ function GoogleLogin({ onSuccess }: any) {
     }
   };
 
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      import("gapi-script").then((module) => {
-        gapi = module.gapi;
-        gapi.load("client:auth2", () => {
-          gapi.client.init({
-            clientId: clientId,
-            scope: "https://www.googleapis.com/auth/userinfo.profile",
-          });
-        });
-      });
-    }
-  }, []);
-
   const onFailure = (response: any) => {
-    console.log(response);
+    console.log("hello", response);
   };
   return (
     <div id="signInButton" className="-w-full">

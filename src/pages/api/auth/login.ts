@@ -1,17 +1,15 @@
 // pages/api/auth/login.ts
-import { NextApiRequest, NextApiResponse } from 'next';
-import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
-import { prisma } from '../../../../prisma/db';
-import { ENCRYPTION_KEY } from '../../../../constants';
-import encrypt from '../../../../lib/jwt/cryptography/encryption';
-import { config } from 'dotenv';
-config();
+import { NextApiRequest, NextApiResponse } from "next";
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
+import { prisma } from "../../../../prisma/db";
+import { ENCRYPTION_KEY, JWT_SECRET } from "../../../../constants";
+import encrypt from "../../../../lib/jwt/cryptography/encryption";
 export default async function login(
   req: NextApiRequest,
   res: NextApiResponse
 ): Promise<any> {
-  if (req.method !== 'POST') {
+  if (req.method !== "POST") {
     return res.status(405).end(); // Method not allowed
   }
 
@@ -23,7 +21,7 @@ export default async function login(
     });
 
     if (!existingUser) {
-      return res.status(404).json({ error: 'User not found' });
+      return res.status(404).json({ error: "User not found" });
     }
 
     if (googleId) {
@@ -31,33 +29,28 @@ export default async function login(
       const authMethod = await prisma.authMethod.findFirst({
         where: {
           userId: existingUser.id,
-          type: 'GOOGLE',
+          type: "GOOGLE",
           uniqueId: googleId,
         },
       });
 
       if (!authMethod) {
-        return res.status(404).json({ error: 'Invalid Google ID' });
+        return res.status(404).json({ error: "Invalid Google ID" });
       }
     } else {
       // Email login
       const authMethod = await prisma.authMethod.findFirst({
-        where: { userId: existingUser.id, type: 'EMAIL' },
+        where: { userId: existingUser.id, type: "EMAIL" },
       });
 
       if (!authMethod || !authMethod.password) {
-        return res
-          .status(404)
-          .json({ error: 'User password not found' });
+        return res.status(404).json({ error: "User password not found" });
       }
 
-      const passwordMatch = await bcrypt.compare(
-        password,
-        authMethod.password
-      );
+      const passwordMatch = await bcrypt.compare(password, authMethod.password);
 
       if (!passwordMatch) {
-        return res.status(403).json({ error: 'Invalid password' });
+        return res.status(403).json({ error: "Invalid password" });
       }
     }
 
@@ -66,21 +59,14 @@ export default async function login(
       email: existingUser.email,
     };
 
-    const SECRET = process.env.JWT_SECRET;
-
-    if (!SECRET) {
-      throw new Error('No JWT secret found');
-    }
+    const SECRET = await JWT_SECRET;
 
     const token = jwt.sign(payload, SECRET);
 
-    const encryptedToken = encrypt(
-      token,
-      Buffer.from(await ENCRYPTION_KEY)
-    );
+    const encryptedToken = encrypt(token, Buffer.from(await ENCRYPTION_KEY));
 
     res.setHeader(
-      'Set-Cookie',
+      "Set-Cookie",
       `token=${encryptedToken}; Path=/; Secure; SameSite=Lax`
     );
 
@@ -89,6 +75,6 @@ export default async function login(
     console.error(error);
     return res
       .status(500)
-      .json({ error: 'Something went wrong while logging in.' });
+      .json({ error: "Something went wrong while logging in." });
   }
 }
