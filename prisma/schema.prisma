@@ -51,11 +51,10 @@ model Transcription {
   name        String
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt()
-  userId      Int
+  userId      Int       
   user        User      @relation(fields: [userId], references: [id])
   transcript  String
-  confidence  Float
-  words       Json
-  paragraphs  Json
+  confidence  Float     @default(0)  
+  words       Json      @default("[]")  
+  paragraphs  Json      @default("{}")  
 }
-
