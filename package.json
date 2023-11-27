@@ -3,8 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "concurrently \"docker-compose up\" \"next dev\"",
+    "dev": "next dev",
     "build": "next build",
+    "docker": "docker-compose up -d",
     "start": "next start",
     "lint": "next lint",
     "prepare": "husky install"
