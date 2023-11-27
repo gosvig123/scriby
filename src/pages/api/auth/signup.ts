@@ -1,17 +1,15 @@
-import { NextApiRequest, NextApiResponse } from 'next';
-import bcrypt from 'bcrypt';
-import { prisma } from '../../../../prisma/db';
-import { config } from 'dotenv';
-import jwt from 'jsonwebtoken';
-import encrypt from '../../../../lib/jwt/cryptography/encryption';
-import { ENCRYPTION_KEY } from '../../../../constants';
-config();
+import { NextApiRequest, NextApiResponse } from "next";
+import bcrypt from "bcrypt";
+import { prisma } from "../../../../prisma/db";
+import jwt from "jsonwebtoken";
+import encrypt from "../../../../lib/jwt/cryptography/encryption";
+import { ENCRYPTION_KEY, JWT_SECRET } from "../../../../constants";
 
 export default async function signup(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  if (req.method !== 'POST') {
+  if (req.method !== "POST") {
     return res.status(405).end(); // Method not allowed
   }
 
@@ -23,7 +21,7 @@ export default async function signup(
     });
 
     if (existingUser) {
-      return res.status(400).json({ error: 'User already exists' });
+      return res.status(400).json({ error: "User already exists" });
     }
 
     // Create a new user
@@ -33,12 +31,13 @@ export default async function signup(
       },
     });
 
+    console.log("newUser:", newUser);
     if (googleId) {
       // Google sign-up
       await prisma.authMethod.create({
         data: {
           userId: newUser.id,
-          type: 'GOOGLE',
+          type: "GOOGLE",
           uniqueId: googleId,
           verified: true, // Google users are assumed verified by default
         },
@@ -50,13 +49,13 @@ export default async function signup(
       await prisma.authMethod.create({
         data: {
           userId: newUser.id,
-          type: 'EMAIL',
+          type: "EMAIL",
           password: hashedPassword,
         },
       });
     } else {
       // Neither password nor Google ID provided, cannot sign up
-      return res.status(400).json({ error: 'Invalid signup method' });
+      return res.status(400).json({ error: "Invalid signup method" });
     }
 
     // Create JWT payload
@@ -66,20 +65,16 @@ export default async function signup(
     };
 
     // Sign the payload into a JWT token
-    const SECRET = process.env.JWT_SECRET; // Use a strong, unique secret stored in environment variables
-
-    console.log('SECRET:', SECRET);
+    const SECRET = await JWT_SECRET;
+    console.log("SECRET:", SECRET);
     if (!SECRET) {
-      throw new Error('No JWT secret found');
+      throw new Error("No JWT secret found");
     }
-    const token = jwt.sign(payload, SECRET, { expiresIn: '60d' }); // The token will expire in 1 day. You can adjust this as needed.
+    const token = jwt.sign(payload, SECRET, { expiresIn: "60d" }); // The token will expire in 1 day. You can adjust this as needed.
 
-    const encryptedToken = encrypt(
-      token,
-      Buffer.from(await ENCRYPTION_KEY)
-    );
+    const encryptedToken = encrypt(token, Buffer.from(await ENCRYPTION_KEY));
     res.setHeader(
-      'Set-Cookie',
+      "Set-Cookie",
       `token=${encryptedToken}; Path=/; Secure; SameSite=Lax`
     );
 
@@ -87,6 +82,6 @@ export default async function signup(
   } catch (err) {
     return res
       .status(500)
-      .json({ error: 'Something went wrong while signing up.' });
+      .json({ error: "Something went wrong while signing up." });
   }
 }

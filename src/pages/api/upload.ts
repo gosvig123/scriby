@@ -1,135 +1,98 @@
-import handleFileUpload from '../../../lib/jwt/multerStorage';
-import { IAudioMetadata } from 'music-metadata';
-import { parseAudioMetadata } from '../../../lib/handleFileTranscription';
-import authenticateUser from '../../../lib/jwt/authenticateUser';
+// pages/api/transcribe.ts
+import multer from "multer";
+import { Deepgram } from "@deepgram/sdk";
+import { DEEPGRAM_API_KEY } from "../../../constants";
+import { authenticateUser } from "../../../lib/jwt/authenticateUser";
+import { prisma } from "../../../prisma/db";
+
+// Multer setup (for in-memory storage)
+const upload = multer({ storage: multer.memoryStorage() });
+
 export const config = {
   api: {
     bodyParser: false,
   },
 };
 
-import {
-  createTranscriptionRecord,
-  uploadToSupabase,
-} from '../../../lib/uploadFile';
-import { OPEN_AI_KEY } from '../../../constants';
-import FormData from 'form-data';
-import axios from 'axios';
-
-export default async (req: any, res: any) => {
-  const userDetails = await authenticateUser(req);
-
-  const { email } = userDetails;
-  const id = userDetails.userId;
-  if (req.method !== 'POST') {
-    return res.status(405).end();
-  }
-
-  try {
-    await handleFileUpload(req, res);
-    if (!req.file || !req.file.buffer) {
-      return res.status(400).json({ error: 'No file uploaded' });
-    }
-    const originalName = req.file.originalname;
-    const metadata: IAudioMetadata = await parseAudioMetadata(
-      req.file.buffer
-    );
-    // const transcriptionBuffer = await transcribeAudioToBuffer(
-    //   req.file.buffer
-    // );
-    const key = await OPEN_AI_KEY;
-    console.log('key', key);
-    const model = 'whisper-1';
-    const form = new FormData();
-    form.append('model', model);
-    form.append('file', req.file.buffer, {
-      filename: req.file.originalname,
+// Promisify multer middleware
+const multerSingle = (fieldName: string) => {
+  return (req: any, res: any) => {
+    return new Promise((resolve, reject) => {
+      upload.single(fieldName)(req, res, (err: any) => {
+        if (err) {
+          reject(err);
+        } else if (req.file) {
+          resolve(req.file);
+        } else {
+          reject(new Error("No file uploaded"));
+        }
+      });
     });
-    const response: any = await axios.post(
-      'https://api.openai.com/v1/audio/transcriptions',
-      form,
-      {
-        headers: {
-          Authorization: `Bearer ${key}`,
-          ...form.getHeaders(),
-        },
-      }
-    );
-
-    const transcription = response.data;
-    if (!transcription) {
-      console.error(
-        'No transcription found in the response:',
-        response
-      );
-      return res
-        .status(500)
-        .json({ error: 'No transcription received' });
-    }
-    console.log('transcription', transcription);
-
-    // Convert the transcribed text to a Buffer
-    const transcriptionBuffer = Buffer.from(
-      JSON.stringify({ transcription: transcription }),
-      'utf-8'
-    );
-
-    await uploadToSupabase(email, originalName, transcriptionBuffer);
-
-    await createTranscriptionRecord(originalName, id, metadata);
-
-    return res.status(200).send({
-      transcription: transcriptionBuffer,
-    });
-  } catch (error) {
-    console.error('Error:', error);
-    return res
-      .status(500)
-      .json({ error: 'Error transcribing the audio' });
-  }
+  };
 };
 
+export default async function handler(req: any, res: any) {
+  try {
+    // Authenticate user
+    const userDetails = await authenticateUser(req);
+    const userId: any = userDetails.userId;
 
-    // // Transcription process
-    // const key = await OPEN_AI_KEY;
-    // const model = 'whisper-1';
-    // const formData = new FormData();
-    // formData.append('model', model);
-    // formData.append('file', req.file.buffer, {
-    //   filename: req.file.originalname,
-    // });
+    // Check for POST request
+    if (req.method !== "POST") {
+      return res.status(405).send("Method Not Allowed");
+    }
 
-    // try {
-    //   const response = await axios.post(
-    //     'https://api.openai.com/v1/audio/transcriptions',
-    //     formData,
-    //     {
-    //       headers: {
-    //         Authorization: `Bearer ${key}`,
-    //         ...formData.getHeaders(),
-    //       },
-    //     }
-    //   );
+    // Process file upload
+    await multerSingle("file")(req, res);
 
-    //   // Check if the response contains 'text'
-    //   const transcription = response.data.text;
-    //   if (!transcription) {
-    //     console.error(
-    //       'No transcription found in the response:',
-    //       response.data
-    //     );
-    //     return res
-    //       .status(500)
-    //       .json({ error: 'No transcription received' });
-    //   }
+    // Check if file is uploaded
+    if (!req.file) {
+      return res.status(400).json({ error: "No file uploaded" });
+    }
 
-    //   // Convert the transcribed text to a Buffer
-    //   const transcriptionBuffer = Buffer.from(
-    //     JSON.stringify({ transcription: transcription }),
-    //     'utf-8'
-    //   );
+    // Setup Deepgram
+    const deepgram = new Deepgram(await DEEPGRAM_API_KEY);
+    const audio = req.file.buffer;
+    const name = req.file.originalname;
+    const source = { buffer: audio, mimetype: req.file.mimetype };
 
-    //   // Define the path for the .txt file in Supabase storage
-    //   const filePath = `${email}/${
-    //     req.file.originalname.split('.')[0]
-    //   }.json`;
+    // Transcription with Deepgram
+    const response: any = await deepgram.transcription.preRecorded(source, {
+      smart_format: true,
+      model: "nova",
+    });
+
+    const transcriptionData = response.results?.channels[0].alternatives[0];
+
+    const fileTranscript =
+      transcriptionData.transcript || transcriptionData.Transcript;
+
+    const Fileconfidence = parseFloat(transcriptionData.confidence);
+    console.log("Transcript with conficence:", Fileconfidence);
+
+    const Filewords = transcriptionData.words;
+    const fileParagraps = transcriptionData.paragraphs;
+
+    // Creating new transcription in database
+    const newTranscription = await prisma.transcription.create({
+      data: {
+        name,
+        user: {
+          connect: {
+            id: userId, // Replace 'id' with the actual unique identifier field for User
+          },
+        },
+        confidence: Fileconfidence,
+        words: Filewords,
+        paragraphs: fileParagraps,
+        transcript: fileTranscript,
+      },
+    });
+
+    console.log(newTranscription);
+    res.status(200).json(newTranscription);
+  } catch (error) {
+    console.error("Transcription Error:", error);
+    res.status(500).json({ error: "Error transcribing the audio" });
+  }
+}
