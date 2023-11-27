@@ -6,7 +6,6 @@ import { DEEPGRAM_API_KEY } from "../../../constants";
 // Multer setup (for in-memory storage, can be adjusted as needed)
 const upload = multer({ storage: multer.memoryStorage() });
 
-
 export const config = {
   api: {
     bodyParser: false,
@@ -22,7 +21,6 @@ export default async function handler(req: any, res: any) {
       return res.status(500).json({ error: "Error uploading the file" });
     }
 
-
     const deepgram = new Deepgram(await DEEPGRAM_API_KEY);
 
     if (!req.file) {
@@ -31,7 +29,7 @@ export default async function handler(req: any, res: any) {
 
     try {
       const audio = req.file.buffer;
-      const source = { buffer: audio, mimetype: "audio/wav" };
+      const source = { buffer: audio, mimetype: req.file.mimetype };
       const response = await deepgram.transcription.preRecorded(source, {
         smart_format: true,
         model: "nova",
