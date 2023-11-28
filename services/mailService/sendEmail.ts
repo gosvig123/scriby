@@ -89,4 +89,15 @@ export const emails = {
       </html>
       `,
     }),
+  sendSignInLink: async (email: string, signInUrl: string) => {
+    // Send email with the sign-in link
+    const resendClient = await loadApiKey();
+    resendClient.emails.send({
+      from: "onboarding@resend.dev",
+      to: email,
+      subject: "Sign In to Scriby",
+      html: `Your sign-in link: <a href="${signInUrl}">${signInUrl}</a>`,
+      // Include additional HTML as needed
+    });
+  },
 };

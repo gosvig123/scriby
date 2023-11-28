@@ -58,3 +58,4 @@ model Transcription {
   words       Json      @default("[]")  
   paragraphs  Json      @default("{}")  
 }
+

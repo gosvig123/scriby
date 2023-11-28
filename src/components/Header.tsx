@@ -4,7 +4,7 @@ import Link from "next/link";
 import LoginModal from "./auth/LoginModal";
 import Cookies from "js-cookie";
 import router from "next/router";
-
+import { useSession, signIn, signOut } from "next-auth/react";
 const AvatarIcon = () => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
@@ -34,21 +34,12 @@ interface IUser {
   iat: number;
 }
 
-interface headerProps {
-  user: IUser | undefined;
-}
 export default function Header() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [userEmail, setUserEmail] = useState("");
   const [user, setUser] = useState<IUser | undefined>();
-  async function handleLogout() {
-    await fetch("/api/auth/signout", {
-      method: "POST",
-      credentials: "include",
-    });
-    router.push("/api/auth/signin");
-  }
+
   useEffect(() => {
     const getSession = async () => {
       const response = await fetch("/api/auth/session", {
@@ -57,12 +48,16 @@ export default function Header() {
 
       if (response.ok) {
         console.log(response);
+        console.log("response", response);
         const data = await response.json();
         console.log("data", data);
-        setUser(data.user);
-        setIsAuthenticated(true);
-        setUserEmail(data.user.email);
+        if (data.user) {
+          setIsAuthenticated(true);
+          setUserEmail(data.user.email);
+          setUser(data.user);
+        }
       } else {
+        setIsAuthenticated(false);
         await router.push("/api/auth/signin");
       }
     };
@@ -100,7 +95,9 @@ export default function Header() {
                     </button>{" "}
                   </Link>
                   <button
-                    onClick={handleLogout}
+                    onClick={() =>
+                      signOut({ callbackUrl: "http://localhost:3000" })
+                    }
                     className="bg-red-500 text-white px-4 py-1 w-full"
                   >
                     Logout

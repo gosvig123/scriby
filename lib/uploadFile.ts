@@ -1,6 +1,6 @@
-import { prisma } from '../prisma/db';
-import { START_SUPABASE } from '../constants';
-import { IAudioMetadata } from 'music-metadata';
+import { prisma } from "../prisma/db";
+import { START_SUPABASE } from "../constants";
+import { IAudioMetadata } from "music-metadata";
 export const uploadToSupabase = async (
   email: string,
   originalFileName: string,
@@ -8,9 +8,9 @@ export const uploadToSupabase = async (
 ) => {
   const supabase = await START_SUPABASE;
 
-  const filePath = `${email}/${originalFileName.split('.')[0]}.json`;
+  const filePath = `${email}/${originalFileName.split(".")[0]}.json`;
   const { error } = await supabase.storage
-    .from('scriby')
+    .from("scriby")
     .upload(filePath, buffer);
   if (error) {
     throw new Error(
@@ -19,40 +19,4 @@ export const uploadToSupabase = async (
   }
 
   return filePath;
-}
-
-export const createTranscriptionRecord = async (
-  originalFileName: string,
-  userId: number,
-  metaData: IAudioMetadata
-) => {
-  try {
-    await prisma.transcription.create({
-      data: {
-        name: originalFileName,
-        userId,
-      },
-    });
-
-    let duration: number | undefined = metaData.format.duration;
-    if (duration) {
-      duration = Math.ceil(duration / 60);
-    }
-
-    await prisma.user.update({
-      where: {
-        id: userId,
-      },
-      data: {
-        credits: {
-          decrement: duration,
-        },
-      },
-    });
-  } catch (error) {
-    console.error('Error creating transcription record:', error);
-  }
-  return;
 };
-
-
