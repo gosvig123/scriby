@@ -1,5 +1,5 @@
-import Header from '@/components/Header';
-import ProfileSettings from '@/components/settings';
+import Header from "@/components/Header";
+import ProfileSettings from "@/components/settings";
 interface IUser {
   email: string;
   userId: number;
@@ -13,20 +13,18 @@ interface settingsProps {
 const settings = ({ user }: settingsProps) => {
   return (
     <div>
-      <Header user={user} />
+      <Header />
       <ProfileSettings user={user} />
     </div>
   );
 };
-import { GetServerSideProps } from 'next';
-import jwt from 'jsonwebtoken';
-import { parseCookies } from 'nookies';
-import { ENCRYPTION_KEY } from '../../constants';
-import decrypt from '../../lib/jwt/cryptography/decryption';
+import { GetServerSideProps } from "next";
+import jwt from "jsonwebtoken";
+import { parseCookies } from "nookies";
+import { ENCRYPTION_KEY } from "../../constants";
+import decrypt from "../../lib/jwt/cryptography/decryption";
 
-export const getServerSideProps: GetServerSideProps = async (
-  context
-) => {
+export const getServerSideProps: GetServerSideProps = async (context) => {
   try {
     const cookies = parseCookies(context);
     const encryptedToken = cookies.token;
@@ -34,7 +32,7 @@ export const getServerSideProps: GetServerSideProps = async (
     if (!encryptedToken) {
       return {
         redirect: {
-          destination: '/signup',
+          destination: "/signup",
           permanent: false,
         },
       };
@@ -48,7 +46,7 @@ export const getServerSideProps: GetServerSideProps = async (
     const SECRET = process.env.JWT_SECRET;
 
     if (!SECRET) {
-      throw new Error('No JWT secret found');
+      throw new Error("No JWT secret found");
     }
 
     const decoded = jwt.verify(decryptedToken, SECRET);
@@ -57,11 +55,11 @@ export const getServerSideProps: GetServerSideProps = async (
       props: { user: decoded }, // The decoded user data
     };
   } catch (error) {
-    console.error('Error in getServerSideProps:', error);
+    console.error("Error in getServerSideProps:", error);
 
     return {
       redirect: {
-        destination: '/', // Redirect to login page if an error occurs
+        destination: "/", // Redirect to login page if an error occurs
         permanent: false,
       },
     };

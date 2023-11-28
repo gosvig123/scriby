@@ -6,7 +6,8 @@
     "dev": "concurrently \"docker-compose up\" \"next dev\"",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "prepare": "husky install"
   },
   "dependencies": {
     "@deepgram/sdk": "^2.4.0",
