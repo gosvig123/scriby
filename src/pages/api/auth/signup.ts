@@ -13,7 +13,7 @@ export default async function signup(
     return res.status(405).end(); // Method not allowed
   }
 
-  const { email, password, googleId } = req.body;
+  const { email, password } = req.body;
 
   try {
     const existingUser = await prisma.user.findUnique({
@@ -31,18 +31,7 @@ export default async function signup(
       },
     });
 
-    console.log("newUser:", newUser);
-    if (googleId) {
-      // Google sign-up
-      await prisma.authMethod.create({
-        data: {
-          userId: newUser.id,
-          type: "GOOGLE",
-          uniqueId: googleId,
-          verified: true, // Google users are assumed verified by default
-        },
-      });
-    } else if (password) {
+    if (password) {
       // Email sign-up
       const hashedPassword = await bcrypt.hash(password, 10);
 

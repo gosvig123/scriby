@@ -1,13 +1,6 @@
 import { FormEvent, useState, useEffect } from "react";
 import Notification from "../components/Alert";
-import dynamic from "next/dynamic";
-const GoogleLogin = dynamic(() => import("../components/auth/GoogleLogin"), {
-  ssr: false,
-});
-
-let gapi: any;
-const clientId =
-  "358155175620-tmo0ped23qte9gpnv4dovqr1i6tj11r6.apps.googleusercontent.com";
+import { signIn } from "next-auth/react";
 
 function Signup() {
   type NotificationStatus = "success" | "failure" | "info";
@@ -19,20 +12,6 @@ function Signup() {
   const [notificationTextState, setNotificationTextState] = useState("info");
   const [authNotification, setAuthNotification] = useState(false);
 
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      import("gapi-script").then((module) => {
-        gapi = module.gapi;
-        gapi.load("client:auth2", () => {
-          gapi.client.init({
-            clientId: clientId,
-            scope: "https://www.googleapis.com/auth/userinfo.profile",
-          });
-        });
-      });
-    }
-  }, []);
-
   const handleNotificationClose = async () => {
     setTimeout(() => {
       setAuthNotification(false);
@@ -40,6 +19,7 @@ function Signup() {
   };
 
   async function handleSignup(e: FormEvent) {
+    e.preventDefault();
     console.log(isChecked);
     if (!isChecked) {
       console.log("not checked");
@@ -62,13 +42,22 @@ function Signup() {
 
     const data = await response.json();
 
-    console.log("data", data);
+    console.log("data received", data);
     if (response.status === 200) {
-      console.log(data);
       setStatusState("success");
-      setNotificationTextState("You have successfully signed up!");
+      setNotificationTextState(
+        "You have successfully signed up and will be redirected shortly!"
+      );
       setAuthNotification(true);
       await handleNotificationClose();
+
+      setTimeout(() => {
+        signIn("credentials", {
+          email,
+          password,
+          callbackUrl: "/dashboard",
+        });
+      }, 5000);
     } else {
       setStatusState("failure");
       setNotificationTextState(data.message);
@@ -76,6 +65,10 @@ function Signup() {
       await handleNotificationClose();
     }
   }
+
+  const handleGoogleLogin = () => {
+    signIn("google", { callbackUrl: "/dashboard" });
+  };
 
   return (
     <div className="h-screen w-full flex flex-col justify-center items-center">
@@ -86,8 +79,13 @@ function Signup() {
             Sign up with Google or use the form to create a new account.
           </p>
         </div>
+        <button
+          onClick={handleGoogleLogin}
+          className="w-full mt-4 bg-red-600 text-white py-2 px-4 rounded hover:bg-red-700 flex items-center justify-center transition-colors duration-200 ease-in-out"
+        >
+          Sign in with Google
+        </button>
 
-        <GoogleLogin />
         <div className="w-full flex flex-col">
           <form
             className="flex flex-col gap-5 text-left text-lg"

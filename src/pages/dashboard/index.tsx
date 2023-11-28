@@ -5,21 +5,30 @@ import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import DashboardSubHeader from "@/components/DashboardSubHeader";
 import TranscriptionList from "@/components/TranscriptionList";
-import { useSession } from "next-auth/react";
 export default function Dashboard() {
   const router = useRouter();
   const [showModal, setShowModal] = useState(false);
   const [activeTab, setActiveTab] = useState("Upload");
   const [transcriptions, setTranscriptions] = useState<any[]>([]);
 
-  const { data: session, status } = useSession();
-
   useEffect(() => {
-    const fetchTranscriptions = async () => {
-      if (!session) {
-        await router.push("/");
-        return;
+    async function getSession() {
+      const response = await fetch("/api/auth/session", {
+        credentials: "include",
+      });
+
+      if (response.ok) {
+        console.log(response);
+        const data = await response.json();
+        if (!data.user) {
+          await router.push("/");
+        }
       }
+      return;
+    }
+    getSession();
+
+    const fetchTranscriptions = async () => {
       const response = await fetch("/api/getmytranscriptions", {
         credentials: "include",
       });
