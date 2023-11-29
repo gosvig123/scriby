@@ -58,7 +58,6 @@ export default function Header() {
         }
       } else {
         setIsAuthenticated(false);
-        await router.push("/api/auth/signin");
       }
     };
     console.log("user", user);
