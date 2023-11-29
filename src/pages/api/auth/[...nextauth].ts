@@ -4,6 +4,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcrypt";
 import { prisma } from "../../../../prisma/db";
 import NextAuth from "next-auth";
+import { emails } from "../../../../services/mailService/sendEmail";
 export const authOptions = {
   providers: [
     googleProvider({
@@ -82,7 +83,9 @@ export const authOptions = {
                 },
               },
             });
+            emails.welcome(user.email);
           }
+
           return true;
         } catch (error) {
           console.error("Error in signIn callback:", error);
@@ -96,15 +99,14 @@ export const authOptions = {
         if (url.startsWith(`${baseUrl}/api/auth/callback`)) {
           return "/dashboard";
         }
-    
+
         if (url.startsWith(`${baseUrl}/api/auth/signout`)) {
           return baseUrl;
         }
-    
+
         return baseUrl;
       },
     },
-    
   },
 };
 

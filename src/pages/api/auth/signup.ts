@@ -3,8 +3,9 @@ import bcrypt from "bcrypt";
 import { prisma } from "../../../../prisma/db";
 import jwt from "jsonwebtoken";
 import encrypt from "../../../../lib/jwt/cryptography/encryption";
-import { ENCRYPTION_KEY, JWT_SECRET } from "../../../../constants";
+import { emails } from "../../../../services/mailService/sendEmail";
 
+import { ENCRYPTION_KEY, JWT_SECRET } from "../../../../constants";
 export default async function signup(
   req: NextApiRequest,
   res: NextApiResponse
@@ -47,7 +48,6 @@ export default async function signup(
       return res.status(400).json({ error: "Invalid signup method" });
     }
 
-    // Create JWT payload
     const payload = {
       userId: newUser.id,
       email: newUser.email,
@@ -67,6 +67,7 @@ export default async function signup(
       `token=${encryptedToken}; Path=/; Secure; SameSite=Lax`
     );
 
+    await emails.welcome(newUser.email);
     return res.status(200).json({ user: newUser });
   } catch (err) {
     return res
